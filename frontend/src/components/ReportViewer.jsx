@@ -50,7 +50,7 @@ export default function ReportViewer({ report, query }) {
         <div className="flex items-center space-x-2">
           <button
             onClick={handleCopy}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all duration-200 hover:-translate-y-0.5"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
             <span>{copied ? 'Copied!' : 'Copy Markdown'}</span>
@@ -58,7 +58,7 @@ export default function ReportViewer({ report, query }) {
 
           <button
             onClick={handleDownload}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5"
           >
             <Download className="w-4 h-4" />
             <span>Download Report</span>

@@ -130,7 +130,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed top-0 left-0 bottom-0 z-40 bg-[#0a0f1d] border-r border-slate-800/80 transition-all duration-300 flex flex-col justify-between ${
+      className={`fixed top-0 left-0 bottom-0 z-40 bg-slate-950/90 border-r border-slate-800/50 transition-all duration-300 flex flex-col justify-between ${
         isOpen ? 'w-72' : 'w-20'
       }`}
     >
@@ -138,8 +138,8 @@ export default function Sidebar({
       <div className="p-4 border-b border-slate-800/80 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 overflow-hidden">
-            <div className="p-2 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg flex-shrink-0 animate-glow">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="p-2 bg-indigo-600/15 rounded-xl shadow-[0_10px_30px_rgba(79,70,229,0.16)] flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-indigo-300" />
             </div>
             {isOpen && (
               <div className="truncate">
@@ -153,7 +153,7 @@ export default function Sidebar({
 
           <button
             onClick={onToggle}
-            className="p-1.5 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 rounded-lg border border-slate-800 transition-all"
+            className="p-1.5 text-slate-400 hover:text-white bg-slate-900/90 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-all"
             title={isOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
           >
             {isOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}

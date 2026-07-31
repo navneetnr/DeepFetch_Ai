@@ -98,7 +98,7 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
       )}
 
       {/* Live Log Terminal */}
-      <div className="glass-card rounded-xl p-4 border border-slate-800 bg-[#0d1321]">
+      <div className="glass-card rounded-xl p-4 border border-slate-700/50 bg-slate-950/70">
         <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
           <div className="flex items-center space-x-2 text-xs text-slate-400 font-mono">
             <Terminal className="w-4 h-4 text-emerald-400" />

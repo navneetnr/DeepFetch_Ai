@@ -8,30 +8,38 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f0f4ff',
-          100: '#e0e9ff',
+          50: '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          400: '#818cf8',
           500: '#6366f1',
           600: '#4f46e5',
           700: '#4338ca',
-          900: '#1e1b4b',
+          900: '#312e81',
         },
-        dark: {
-          bg: '#090d16',
-          card: '#111827',
-          surface: '#1f2937',
-          border: '#374151',
-        }
+        surface: {
+          950: '#080d18',
+          900: '#0b1120',
+          800: '#111827',
+          700: '#1f2937',
+        },
+      },
+      boxShadow: {
+        glow: '0 24px 80px rgba(99, 102, 241, 0.14)',
+      },
+      backgroundImage: {
+        'slate-radial': 'radial-gradient(circle at top left, rgba(99, 102, 241, 0.10), transparent 22%), radial-gradient(circle at 80% 6%, rgba(129, 140, 248, 0.08), transparent 20%)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
+        'glow-soft': 'glowSoft 2.5s ease-in-out infinite alternate',
       },
       keyframes: {
-        glow: {
-          '0%': { boxShadow: '0 0 15px rgba(99, 102, 241, 0.3)' },
-          '100%': { boxShadow: '0 0 30px rgba(99, 102, 241, 0.7)' },
-        }
-      }
+        glowSoft: {
+          '0%': { boxShadow: '0 0 18px rgba(79, 70, 229, 0.16)' },
+          '100%': { boxShadow: '0 0 32px rgba(79, 70, 229, 0.08)' },
+        },
+      },
     },
   },
   plugins: [],

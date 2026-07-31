@@ -28,8 +28,8 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl blur opacity-20 transition duration-500"></div>
-        <div className="relative glass-panel rounded-[28px] p-4 md:p-5 shadow-2xl border border-slate-800/60">
+        <div className="absolute -inset-1 bg-slate-700/30 rounded-3xl blur opacity-60 transition duration-500"></div>
+        <div className="relative glass-panel rounded-[28px] p-4 md:p-5 shadow-xl border border-slate-800/50">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="flex items-center gap-3 md:w-1/3">
               <div className="p-3 rounded-3xl bg-indigo-500/10 text-indigo-300">
@@ -47,16 +47,16 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask any complex research query for live multi-agent synthesis..."
                 disabled={isStreaming}
-                className="w-full rounded-[24px] border border-slate-800/80 bg-slate-950/70 px-4 py-4 text-lg text-slate-100 placeholder-slate-500 outline-none transition focus:border-indigo-500"
+                className="w-full rounded-[24px] border border-slate-800/80 bg-slate-950/80 px-4 py-4 text-lg text-slate-100 placeholder-slate-500 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
               />
             </div>
             <button
               type="submit"
               disabled={!query.trim() || isStreaming}
-              className={`inline-flex items-center justify-center gap-2 rounded-[24px] px-6 py-4 text-sm font-semibold transition-all shadow-lg ${
+              className={`inline-flex items-center justify-center gap-2 rounded-[24px] px-6 py-4 text-sm font-semibold transition-all duration-200 ${
                 !query.trim() || isStreaming
                   ? 'bg-slate-700/60 text-slate-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:scale-[1.01]'
+                  : 'bg-indigo-600 text-white hover:bg-indigo-500 hover:-translate-y-0.5 shadow-lg shadow-indigo-500/20'
               }`}
             >
               {isStreaming ? (

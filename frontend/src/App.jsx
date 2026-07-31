@@ -271,7 +271,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07121f] text-slate-100">
+    <div className="min-h-screen bg-slate-950 text-slate-100 bg-slate-radial">
       <Navbar
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((open) => !open)}
@@ -313,7 +313,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-3xl border border-slate-800/70 bg-slate-950/50 p-5 shadow-inner">
+                <div className="flex flex-col gap-3 rounded-3xl border border-slate-700/50 bg-slate-900/80 p-5 shadow-inner">
                   <div className="flex items-center justify-between text-sm text-slate-400">
                     <span>Workspace Status</span>
                     <span className="rounded-full bg-slate-900 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">{isStreaming ? 'Active' : 'Idle'}</span>
@@ -347,7 +347,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setMcpDrawerOpen(true)}
-                  className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 transition-all"
+                  className="rounded-2xl bg-slate-900/90 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800/80 transition-all duration-200 hover:-translate-y-0.5"
                 >
                   MCP Connectivity
                 </button>
@@ -433,7 +433,7 @@ export default function App() {
 
       {mcpDrawerOpen && (
         <div className="fixed inset-0 z-50 flex items-stretch bg-slate-950/80 backdrop-blur-sm">
-          <div className="ml-auto w-full max-w-md border-l border-slate-800/80 bg-[#08101e] shadow-2xl">
+          <div className="ml-auto w-full max-w-md border-l border-slate-800/80 bg-slate-950/95 shadow-2xl shadow-slate-950/40">
             <div className="flex items-center justify-between border-b border-slate-800/80 px-6 py-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">MCP Connectivity</p>

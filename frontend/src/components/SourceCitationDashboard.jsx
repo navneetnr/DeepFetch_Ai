@@ -4,8 +4,8 @@ import { ExternalLink, Database, Globe, CheckCircle, ShieldCheck } from 'lucide-
 export default function SourceCitationDashboard({ sources }) {
   if (!sources || sources.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-12 text-center text-slate-400">
-        <Database className="w-12 h-12 mx-auto mb-4 text-slate-600 animate-bounce" />
+      <div className="glass-panel rounded-2xl p-12 text-center text-slate-400 bg-slate-950/80">
+        <Database className="w-12 h-12 mx-auto mb-4 text-slate-500 animate-bounce" />
         <h3 className="text-lg font-semibold text-slate-300">No Web Sources Scraped Yet</h3>
         <p className="text-sm mt-1">Submit a research query to initiate Playwright headless browser scraping.</p>
       </div>
@@ -19,7 +19,7 @@ export default function SourceCitationDashboard({ sources }) {
           <Globe className="w-5 h-5 text-indigo-400" />
           <h3 className="text-lg font-semibold text-slate-100">Scraped Web Sources & Provenance</h3>
         </div>
-        <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3 py-1 rounded-full font-mono">
+        <span className="text-xs bg-slate-900/80 text-indigo-300 border border-slate-700/50 px-3 py-1 rounded-full font-mono">
           {sources.length} Verified Sources
         </span>
       </div>
