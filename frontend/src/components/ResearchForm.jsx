@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Sparkles, Zap, Globe, ArrowRight } from 'lucide-react';
+import { Search, Sparkles, Zap, Globe, ArrowRight, FileText } from 'lucide-react';
 
 const PRESET_QUERIES = [
   'Latest developments in Quantum Computing commercialization 2026',
@@ -10,6 +10,9 @@ const PRESET_QUERIES = [
 
 export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' }) {
   const [query, setQuery] = useState(initialQuery);
+  const [files, setFiles] = useState([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [searchMode, setSearchMode] = useState('live'); // 'live' | 'document' | 'hybrid'
 
   useEffect(() => {
     setQuery(initialQuery || '');
@@ -18,7 +21,7 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!query.trim() || isStreaming) return;
-    onSubmit(query.trim());
+    onSubmit({ query: query.trim(), files, searchMode });
   };
 
   const handleSelectPreset = (preset) => {
@@ -41,14 +44,70 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
               </div>
             </div>
             <div className="flex-1">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask any complex research query for live multi-agent synthesis..."
-                disabled={isStreaming}
-                className="w-full rounded-[24px] border border-slate-800/80 bg-slate-950/80 px-4 py-4 text-lg text-slate-100 placeholder-slate-500 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
-              />
+              <div
+                className={`w-full rounded-[16px] border-2 ${isDragActive ? 'border-indigo-500 bg-slate-900/60' : 'border-slate-800/60 bg-slate-950/80'} px-4 py-3 transition`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragActive(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragActive(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragActive(false);
+                  const dropped = Array.from(e.dataTransfer.files || []);
+                  if (dropped.length) setFiles((prev) => [...prev, ...dropped].slice(0, 6));
+                }}
+              >
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Ask any complex research query for live multi-agent synthesis..."
+                  disabled={isStreaming}
+                  className="w-full rounded-md bg-transparent text-lg text-slate-100 placeholder-slate-500 outline-none"
+                />
+
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <label className="inline-flex items-center gap-2 text-xs text-slate-400">Files:</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {files.map((f, idx) => (
+                        <span key={idx} className="inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-1 text-xs text-slate-300">
+                          <FileText className="w-3.5 h-3.5 text-indigo-300" />
+                          {f.name}
+                          <button
+                            type="button"
+                            onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                            className="ml-2 text-slate-500 hover:text-slate-300"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="file-input"
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        const picked = Array.from(e.target.files || []);
+                        if (picked.length) setFiles((prev) => [...prev, ...picked].slice(0, 6));
+                        e.target.value = null;
+                      }}
+                      className="hidden"
+                    />
+                    <label htmlFor="file-input" className="rounded-md bg-slate-800/60 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 cursor-pointer">
+                      Upload
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
             <button
               type="submit"
@@ -75,6 +134,24 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
           </div>
         </div>
       </form>
+
+      <div className="mt-3 flex items-center gap-3 text-sm">
+        <div className="inline-flex items-center gap-2">
+          <label className="text-xs text-slate-400">Search Mode</label>
+          <div className="inline-flex rounded-xl bg-slate-900/50 p-1">
+            {['live', 'document', 'hybrid'].map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setSearchMode(mode)}
+                disabled={isStreaming}
+                className={`px-3 py-1 text-xs rounded-lg ${searchMode === mode ? 'bg-indigo-600 text-white' : 'text-slate-300'}`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-2 rounded-full bg-slate-900/70 px-3 py-2 text-xs uppercase tracking-widest text-slate-400">

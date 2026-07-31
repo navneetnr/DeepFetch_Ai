@@ -82,7 +82,8 @@ export default function App() {
     setActiveHistoryId(session.id);
   };
 
-  const handleStartResearch = async (query) => {
+  const handleStartResearch = async (payload) => {
+    const { query, files = [], searchMode = 'live' } = typeof payload === 'string' ? { query: payload } : payload;
     setCurrentQuery(query);
     setIsStreaming(true);
     setLogs([`[System] Initiated research session for query: '${query}'`]);
@@ -97,10 +98,15 @@ export default function App() {
     const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     try {
+      // Build FormData to include files and search mode
+      const formData = new FormData();
+      formData.append('query', query);
+      formData.append('search_mode', searchMode);
+      for (const f of files || []) formData.append('files', f);
+
       const response = await fetch('/api/v1/research/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -190,10 +196,14 @@ export default function App() {
       setLogs((prev) => [...prev, `[System Warning] SSE stream interrupted: ${error.message}. Invoking direct fallback execution...`]);
 
       try {
+        const fallbackForm = new FormData();
+        fallbackForm.append('query', query);
+        fallbackForm.append('search_mode', searchMode);
+        for (const f of files || []) fallbackForm.append('files', f);
+
         const fallbackRes = await fetch('/api/v1/research/execute', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query }),
+          body: fallbackForm,
         });
         const fallbackData = await fallbackRes.json();
         const fallbackLogs = fallbackData.execution_logs || [];
