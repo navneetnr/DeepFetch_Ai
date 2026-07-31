@@ -49,21 +49,40 @@ class ResearcherNode:
         if scrape_tasks:
             scrape_results = await asyncio.gather(*scrape_tasks, return_exceptions=True)
             for item, result in zip(discovered_urls[:4], scrape_results):
-                if isinstance(result, dict) and result.get("content"):
+                # result may be a dict from the scraper or an exception
+                content_text = ""
+                status_code = 0
+                title = item.get("title", "")
+
+                if isinstance(result, dict):
+                    content_text = result.get("content", "") or ""
+                    status_code = result.get("status_code", 0) or 0
+                    title = result.get("title", title)
+
+                # If Playwright or HTTP fallback returned too little content, use the search snippet fallback
+                if not content_text or len(content_text.strip()) < 100:
+                    snippet_fallback = item.get("snippet", "") or item.get("raw_snippet", "")
+                    if snippet_fallback:
+                        logger.info(f"Using snippet fallback for {item['url']} (len snippet={len(snippet_fallback)})")
+                        content_text = snippet_fallback
+                        # mark status as 200 to indicate valid fallback content
+                        status_code = status_code or 200
+
+                if content_text:
                     scraped_entry = {
                         "sub_query": item["sub_query"],
-                        "title": result.get("title", item["title"]),
+                        "title": title,
                         "url": item["url"],
-                        "snippet": item["snippet"],
-                        "content": result.get("content", "")[:3000],  # Truncate to reasonable context window
-                        "status_code": result.get("status_code", 200),
+                        "snippet": item.get("snippet", ""),
+                        "content": content_text[:3000],  # Truncate to reasonable context window
+                        "status_code": status_code,
                     }
                     scraped_data.append(scraped_entry)
-                    log_scraped = f"[Researcher] Successfully scraped live JS content from {item['url']} ({len(scraped_entry['content'])} chars)"
+                    log_scraped = f"[Researcher] Collected content from {item['url']} ({len(scraped_entry['content'])} chars)"
                     logger.info(log_scraped)
                     logs.append(log_scraped)
                 else:
-                    log_err = f"[Researcher] Failed to scrape {item['url']}: {result}"
+                    log_err = f"[Researcher] Failed to obtain content for {item['url']}: {result}"
                     logger.warning(log_err)
                     logs.append(log_err)
 

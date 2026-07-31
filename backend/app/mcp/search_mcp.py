@@ -20,10 +20,13 @@ class SearchMCPTool:
             with DDGS() as ddgs:
                 ddg_results = list(ddgs.text(query, max_results=num_results))
                 for item in ddg_results:
+                    raw_snip = item.get("body", "")
                     results.append({
                         "title": item.get("title", ""),
                         "url": item.get("href", ""),
-                        "snippet": item.get("body", ""),
+                        # preserve the raw snippet from the search provider
+                        "snippet": raw_snip,
+                        "raw_snippet": raw_snip,
                     })
         except Exception as e:
             logger.error(f"Search MCP execution failed for query '{query}': {e}")
@@ -32,6 +35,7 @@ class SearchMCPTool:
                 "title": f"Search result for {query}",
                 "url": f"https://www.google.com/search?q={query.replace(' ', '+')}",
                 "snippet": f"Dynamic web search fallback snippet for query: {query}",
+                "raw_snippet": f"Dynamic web search fallback snippet for query: {query}",
             }]
 
         return results

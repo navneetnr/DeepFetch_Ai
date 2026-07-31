@@ -31,9 +31,10 @@ class PlannerNode:
                     temperature=0.2,
                 )
                 system_prompt = (
-                    "You are an expert Autonomous Research Planner. Decompose the given user query "
-                    "into 2 to 3 distinct, specific, and actionable sub-queries for live web search and browser scraping. "
-                    "Return ONLY a valid JSON list of strings, e.g. [\"sub-query 1\", \"sub-query 2\"]."
+                    "You are an expert Autonomous Research Planner. Given a user's research query, "
+                    "extract 2 to 3 concise, natural-sounding search phrases suitable for web search (each phrase should be 3-10 words). "
+                    "Do NOT append any boilerplate words like 'overview', 'summary', 'facts', or 'citations'. "
+                    "Return ONLY a JSON array of strings, e.g. [\"NVIDIA Blackwell vs AMD MI300X architecture 2026\", \"AMD MI300X vs Blackwell market share\"]."
                 )
                 messages = [
                     SystemMessage(content=system_prompt),
@@ -55,11 +56,12 @@ class PlannerNode:
                 logger.error(f"[Planner] LLM decomposition failed: {e}. Falling back to NLP decomposer.")
 
         if not sub_queries:
-            # Fallback deterministic sub-query strategy
+            # Fallback deterministic sub-query strategy: produce concise, natural search phrases
+            base = user_query.strip()
             sub_queries = [
-                f"{user_query} key concepts breakdown overview",
-                f"{user_query} latest developments official data analysis",
-                f"{user_query} summary facts and citations",
+                f"{base}",
+                f"{base} developments 2026",
+                f"{base} comparison analysis",
             ]
 
         log_result = f"[Planner] Generated {len(sub_queries)} sub-queries: {sub_queries}"
