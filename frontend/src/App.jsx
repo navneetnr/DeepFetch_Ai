@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Cpu, Globe, FileText, Sparkles, Activity, Github, RefreshCw } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Cpu, Globe, FileText, Sparkles, Activity, Github, ArrowRight, Server, ChevronRight } from 'lucide-react';
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import ResearchForm from './components/ResearchForm';
 import AgentTraceViewer from './components/AgentTraceViewer';
 import SourceCitationDashboard from './components/SourceCitationDashboard';
 import ReportViewer from './components/ReportViewer';
+import AuthModal from './components/AuthModal';
+import SettingsModal from './components/SettingsModal';
+
+const SESSION_STORAGE_KEY = 'deepfetch_workspace_sessions';
+const USER_STORAGE_KEY = 'deepfetch_workspace_user';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('trace');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mcpDrawerOpen, setMcpDrawerOpen] = useState(false);
+  const [activeRightTab, setActiveRightTab] = useState('report');
+  const [activeTab, setActiveTab] = useState('report');
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentQuery, setCurrentQuery] = useState('');
   const [logs, setLogs] = useState([]);
@@ -16,6 +28,40 @@ export default function App() {
   const [criticVerdict, setCriticVerdict] = useState('');
   const [report, setReport] = useState('');
   const [backendHealth, setBackendHealth] = useState('checking');
+  const [history, setHistory] = useState([]);
+  const [activeHistoryId, setActiveHistoryId] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedHistory = localStorage.getItem(SESSION_STORAGE_KEY);
+    const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+    if (storedHistory) {
+      try {
+        setHistory(JSON.parse(storedHistory));
+      } catch {
+        setHistory([]);
+      }
+    }
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(history));
+  }, [history]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_STORAGE_KEY);
+    }
+  }, [user]);
 
   useEffect(() => {
     fetch('/health')
@@ -27,6 +73,15 @@ export default function App() {
       .catch(() => setBackendHealth('offline'));
   }, []);
 
+  const hasActiveWorkspace = useMemo(() => {
+    return isStreaming || report || logs.length > 0 || scrapedSources.length > 0;
+  }, [isStreaming, report, logs.length, scrapedSources.length]);
+
+  const saveSession = (session) => {
+    setHistory((prev) => [session, ...prev.filter((item) => item.id !== session.id)]);
+    setActiveHistoryId(session.id);
+  };
+
   const handleStartResearch = async (query) => {
     setCurrentQuery(query);
     setIsStreaming(true);
@@ -37,6 +92,9 @@ export default function App() {
     setCriticVerdict('');
     setReport('');
     setActiveTab('trace');
+    setActiveRightTab('report');
+
+    const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     try {
       const response = await fetch('/api/v1/research/stream', {
@@ -52,6 +110,12 @@ export default function App() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let accumulatedLogs = [`[System] Initiated research session for query: '${query}'`];
+      let collectedSources = [];
+      let latestReport = '';
+      let latestCritic = '';
+      let latestNode = 'planner';
+      let latestSubQueries = [];
 
       while (true) {
         const { value, done } = await reader.read();
@@ -68,30 +132,63 @@ export default function App() {
 
             try {
               const data = JSON.parse(jsonStr);
-
+              if (data.logs) {
+                accumulatedLogs = [...accumulatedLogs, ...data.logs];
+                setLogs((prev) => [...prev, ...data.logs]);
+              }
               if (data.event === 'node_update') {
-                if (data.node) setActiveNode(data.node);
-                if (data.logs) setLogs((prev) => [...new Set([...prev, ...data.logs])]);
-                if (data.sub_queries && data.sub_queries.length > 0) {
+                if (data.node) {
+                  setActiveNode(data.node);
+                  latestNode = data.node;
+                }
+                if (data.sub_queries) {
+                  latestSubQueries = data.sub_queries;
                   setSubQueries(data.sub_queries);
                 }
-                if (data.critic_verdict) setCriticVerdict(data.critic_verdict);
+                if (data.critic_verdict) {
+                  latestCritic = data.critic_verdict;
+                  setCriticVerdict(data.critic_verdict);
+                }
               } else if (data.event === 'complete') {
-                if (data.report) setReport(data.report);
-                if (data.scraped_data) setScrapedSources(data.scraped_data);
-                if (data.execution_logs) setLogs(data.execution_logs);
+                if (data.report) {
+                  latestReport = data.report;
+                  setReport(data.report);
+                }
+                if (data.scraped_data) {
+                  collectedSources = data.scraped_data;
+                  setScrapedSources(data.scraped_data);
+                }
+                if (data.execution_logs) {
+                  accumulatedLogs = data.execution_logs;
+                  setLogs(data.execution_logs);
+                }
                 setActiveTab('report');
               }
             } catch (err) {
-              console.error("Error parsing SSE data chunk:", err);
+              console.error('Error parsing SSE data chunk:', err);
             }
           }
         }
       }
+
+      const session = {
+        id: sessionId,
+        query,
+        timestamp: Date.now(),
+        logs: accumulatedLogs,
+        report: latestReport,
+        scrapedSources: collectedSources,
+        subQueries: latestSubQueries,
+        criticVerdict: latestCritic,
+        activeNode: latestNode,
+        status: 'completed',
+      };
+
+      saveSession(session);
     } catch (error) {
-      console.warn("SSE Stream interrupted, attempting fallback execute endpoint:", error);
+      console.warn('SSE Stream interrupted, attempting fallback execute endpoint:', error);
       setLogs((prev) => [...prev, `[System Warning] SSE stream interrupted: ${error.message}. Invoking direct fallback execution...`]);
-      
+
       try {
         const fallbackRes = await fetch('/api/v1/research/execute', {
           method: 'POST',
@@ -99,11 +196,29 @@ export default function App() {
           body: JSON.stringify({ query }),
         });
         const fallbackData = await fallbackRes.json();
-        setReport(fallbackData.report || '');
-        setScrapedSources(fallbackData.scraped_data || []);
-        setLogs(fallbackData.execution_logs || []);
-        setCriticVerdict(fallbackData.critic_verdict || 'APPROVED');
+        const fallbackLogs = fallbackData.execution_logs || [];
+        const fallbackReport = fallbackData.report || '';
+        const fallbackSources = fallbackData.scraped_data || [];
+        const fallbackCritic = fallbackData.critic_verdict || 'APPROVED';
+
+        setReport(fallbackReport);
+        setScrapedSources(fallbackSources);
+        setLogs((prev) => [...prev, ...fallbackLogs]);
+        setCriticVerdict(fallbackCritic);
         setActiveTab('report');
+
+        saveSession({
+          id: sessionId,
+          query,
+          timestamp: Date.now(),
+          logs: [...logs, ...fallbackLogs],
+          report: fallbackReport,
+          scrapedSources: fallbackSources,
+          subQueries,
+          criticVerdict: fallbackCritic,
+          activeNode,
+          status: 'completed',
+        });
       } catch (fbErr) {
         setLogs((prev) => [...prev, `[System Error] Execution failed: ${fbErr.message}`]);
       }
@@ -112,101 +227,168 @@ export default function App() {
     }
   };
 
+  const handleNewResearch = () => {
+    setCurrentQuery('');
+    setLogs([]);
+    setSubQueries([]);
+    setScrapedSources([]);
+    setActiveNode('planner');
+    setCriticVerdict('');
+    setReport('');
+    setActiveTab('report');
+    setActiveRightTab('report');
+    setActiveHistoryId(null);
+  };
+
+  const handleLoadHistory = (item) => {
+    setActiveHistoryId(item.id);
+    setCurrentQuery(item.query);
+    setLogs(item.logs || []);
+    setSubQueries(item.subQueries || []);
+    setScrapedSources(item.scrapedSources || []);
+    setActiveNode(item.activeNode || 'planner');
+    setCriticVerdict(item.criticVerdict || '');
+    setReport(item.report || '');
+    setActiveTab(item.report ? 'report' : 'trace');
+    setActiveRightTab('report');
+  };
+
+  const handleDeleteHistory = (id) => {
+    setHistory((prev) => prev.filter((item) => item.id !== id));
+    if (activeHistoryId === id) {
+      setActiveHistoryId(null);
+    }
+  };
+
+  const handleAuthSuccess = (account) => {
+    setUser(account);
+    setAuthOpen(false);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setSettingsOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-[#080c14] text-slate-100 flex flex-col justify-between">
-      {/* Header Bar */}
-      <header className="sticky top-0 z-50 glass-panel border-b border-slate-800 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl shadow-lg animate-glow">
-              <Sparkles className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-[#07121f] text-slate-100">
+      <Navbar
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((open) => !open)}
+        activeNode={activeNode}
+        isStreaming={isStreaming}
+        backendHealth={backendHealth}
+        onOpenMcpDrawer={() => setMcpDrawerOpen(true)}
+        user={user}
+        onOpenAuth={() => setAuthOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+
+      <Sidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen((open) => !open)}
+        onNewResearch={handleNewResearch}
+        history={history}
+        activeHistoryId={activeHistoryId}
+        onSelectHistory={handleLoadHistory}
+        onDeleteHistory={handleDeleteHistory}
+        user={user}
+        onOpenAuth={() => setAuthOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onLogout={handleLogout}
+      />
+
+      <main className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? 288 : 80 }}>
+        <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+          <section className="grid grid-cols-1 xl:grid-cols-[0.78fr_0.22fr] gap-6">
+            <div className="glass-panel rounded-[32px] border border-slate-800/70 p-8 shadow-2xl">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="mb-3 text-xs uppercase tracking-[0.35em] text-indigo-300/70">Research Workspace</p>
+                  <h1 className="text-4xl font-semibold tracking-tight text-white">
+                    Discover insights, synthesize reports, and manage your research flow.
+                  </h1>
+                  <p className="mt-4 max-w-2xl text-slate-400 leading-relaxed">
+                    DeepFetch AI combines live agent execution, historical session storage, and export-ready artifacts in a professional SaaS research dashboard.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 rounded-3xl border border-slate-800/70 bg-slate-950/50 p-5 shadow-inner">
+                  <div className="flex items-center justify-between text-sm text-slate-400">
+                    <span>Workspace Status</span>
+                    <span className="rounded-full bg-slate-900 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">{isStreaming ? 'Active' : 'Idle'}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
+                    <div className="rounded-2xl bg-slate-900/80 p-4">
+                      <p className="font-semibold text-slate-100">Sessions</p>
+                      <p className="mt-2 text-2xl text-indigo-300">{history.length}</p>
+                    </div>
+                    <div className="rounded-2xl bg-slate-900/80 p-4">
+                      <p className="font-semibold text-slate-100">Saved Reports</p>
+                      <p className="mt-2 text-2xl text-emerald-300">{history.filter((item) => item.report).length}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleNewResearch}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 transition-all"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                    New Research Session
+                  </button>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                DeepFetch AI
-                <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono uppercase tracking-wider">
-                  v1.0 Autonomous
-                </span>
-              </h1>
-              <p className="text-xs text-slate-400">Live Multi-Agent Research & Data Synthesis Engine</p>
-            </div>
-          </div>
 
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-xs font-mono bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
-              <Activity className={`w-3.5 h-3.5 ${backendHealth === 'online' ? 'text-emerald-400 animate-pulse' : 'text-amber-400'}`} />
-              <span className="text-slate-300">Backend:</span>
-              <span className={backendHealth === 'online' ? 'text-emerald-400 font-semibold' : 'text-amber-400'}>
-                {backendHealth.toUpperCase()}
-              </span>
-            </div>
-
-            <a
-              href="https://github.com/navneetnr/DeepFetch_Ai.git"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800 rounded-xl border border-slate-800 transition-all"
-              title="View GitHub Repository"
-            >
-              <Github className="w-5 h-5" />
-            </a>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto w-full px-6 py-8 flex-grow space-y-8">
-        {/* Search Query Input */}
-        <ResearchForm onSubmit={handleStartResearch} isStreaming={isStreaming} />
-
-        {/* Navigation Tabs */}
-        {(logs.length > 0 || isStreaming) && (
-          <div className="space-y-6">
-            <div className="flex justify-center border-b border-slate-800/80 pb-px">
-              <nav className="flex space-x-4">
+            <div className="glass-panel rounded-[32px] border border-slate-800/70 p-6 shadow-xl bg-slate-950/70">
+              <div className="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">Quick Actions</p>
+                  <h2 className="text-lg font-semibold text-white">Start a new research query</h2>
+                </div>
                 <button
-                  onClick={() => setActiveTab('trace')}
-                  className={`flex items-center space-x-2 px-5 py-3 rounded-t-xl font-medium text-sm transition-all border-b-2 ${
-                    activeTab === 'trace'
-                      ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
-                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
-                  }`}
+                  onClick={() => setMcpDrawerOpen(true)}
+                  className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 transition-all"
                 >
-                  <Cpu className="w-4 h-4" />
-                  <span>Agent Trace</span>
-                  {isStreaming && <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400 ml-1" />}
+                  MCP Connectivity
                 </button>
-
-                <button
-                  onClick={() => setActiveTab('sources')}
-                  className={`flex items-center space-x-2 px-5 py-3 rounded-t-xl font-medium text-sm transition-all border-b-2 ${
-                    activeTab === 'sources'
-                      ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
-                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <Globe className="w-4 h-4" />
-                  <span>Scraped Sources ({scrapedSources.length})</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('report')}
-                  className={`flex items-center space-x-2 px-5 py-3 rounded-t-xl font-medium text-sm transition-all border-b-2 ${
-                    activeTab === 'report'
-                      ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
-                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
-                  }`}
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Final Report</span>
-                  {report && <span className="w-2 h-2 rounded-full bg-emerald-400 ml-1" />}
-                </button>
-              </nav>
+              </div>
+              <ResearchForm onSubmit={handleStartResearch} isStreaming={isStreaming} initialQuery={currentQuery} />
             </div>
+          </section>
 
-            {/* Tab Views */}
-            <div>
-              {activeTab === 'trace' && (
+          {!hasActiveWorkspace ? (
+            <section className="glass-panel rounded-[32px] border border-slate-800/70 p-10 shadow-2xl text-center">
+              <div className="mx-auto max-w-3xl">
+                <div className="inline-flex items-center justify-center rounded-full bg-indigo-600/10 px-4 py-2 text-xs uppercase tracking-[0.35em] text-indigo-200 mb-6">
+                  <Sparkles className="w-4 h-4 mr-2 text-indigo-300" /> Idle Workspace
+                </div>
+                <h2 className="text-3xl font-semibold text-white">Your research hub is ready.</h2>
+                <p className="mt-4 text-slate-400 leading-relaxed">
+                  Enter a research topic to launch a live multi-agent session. Your session history and exported artifacts are stored locally for fast recall.
+                </p>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {['Search planning', 'Verified source scraping', 'Fact-checked synthesis', 'Export Markdown/PDF'].map((item) => (
+                    <div key={item} className="rounded-3xl border border-slate-800/70 bg-slate-950/80 p-6 text-left shadow-sm">
+                      <p className="text-sm font-semibold text-slate-100">{item}</p>
+                      <p className="mt-2 text-sm text-slate-400">Designed for a modern research workflow with clean provenance controls and export options.</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          ) : (
+            <section className="grid grid-cols-1 xl:grid-cols-[0.85fr_1.15fr] gap-6">
+              <div className="glass-panel rounded-[32px] border border-slate-800/70 p-6 shadow-2xl">
+                <div className="flex items-center justify-between gap-4 mb-6">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">Execution Log</p>
+                    <h2 className="text-2xl font-semibold text-white">Live Agent Stream</h2>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                    {isStreaming ? 'Streaming active' : 'Latest execution state'}
+                  </div>
+                </div>
                 <AgentTraceViewer
                   activeNode={activeNode}
                   logs={logs}
@@ -214,24 +396,91 @@ export default function App() {
                   criticVerdict={criticVerdict}
                   isStreaming={isStreaming}
                 />
-              )}
+              </div>
 
-              {activeTab === 'sources' && (
-                <SourceCitationDashboard sources={scrapedSources} />
-              )}
+              <div className="glass-panel rounded-[32px] border border-slate-800/70 p-6 shadow-2xl">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">Research artifact</p>
+                    <h2 className="text-2xl font-semibold text-white">Final outputs & sources</h2>
+                  </div>
+                  <div className="flex rounded-3xl bg-slate-900/80 p-1 text-sm text-slate-300">
+                    <button
+                      onClick={() => setActiveRightTab('report')}
+                      className={`px-4 py-2 rounded-3xl transition-all ${activeRightTab === 'report' ? 'bg-indigo-500/20 text-indigo-100' : 'hover:bg-slate-800'}`}
+                    >
+                      Report View
+                    </button>
+                    <button
+                      onClick={() => setActiveRightTab('sources')}
+                      className={`px-4 py-2 rounded-3xl transition-all ${activeRightTab === 'sources' ? 'bg-indigo-500/20 text-indigo-100' : 'hover:bg-slate-800'}`}
+                    >
+                      Sources Panel
+                    </button>
+                  </div>
+                </div>
 
-              {activeTab === 'report' && (
-                <ReportViewer report={report} query={currentQuery} />
-              )}
-            </div>
-          </div>
-        )}
+                {activeRightTab === 'report' ? (
+                  <ReportViewer report={report} query={currentQuery} />
+                ) : (
+                  <SourceCitationDashboard sources={scrapedSources} />
+                )}
+              </div>
+            </section>
+          )}
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="glass-panel border-t border-slate-800/80 px-6 py-4 text-center text-xs text-slate-500 font-mono">
-        <p>DeepFetch AI — Powered by LangGraph, Playwright Async, Model Context Protocol & FastAPI</p>
-      </footer>
+      {mcpDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex items-stretch bg-slate-950/80 backdrop-blur-sm">
+          <div className="ml-auto w-full max-w-md border-l border-slate-800/80 bg-[#08101e] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800/80 px-6 py-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">MCP Connectivity</p>
+                <h3 className="text-lg font-semibold text-white">Server Connectivity Status</h3>
+              </div>
+              <button
+                onClick={() => setMcpDrawerOpen(false)}
+                className="text-slate-400 hover:text-white rounded-lg p-2"
+                aria-label="Close MCP drawer"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4 p-6 text-sm text-slate-300">
+              <div className="rounded-3xl border border-slate-800/80 bg-slate-900/80 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-semibold text-slate-100">MCP API Gateway</p>
+                  <span className="rounded-full bg-emerald-500/10 text-emerald-300 px-2 py-1 text-[11px]">Connected</span>
+                </div>
+                <p className="text-slate-400">Live command channel for remote agent orchestration and model coordination.</p>
+              </div>
+              <div className="rounded-3xl border border-slate-800/80 bg-slate-900/80 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-semibold text-slate-100">Playwright Browser Pool</p>
+                  <span className="rounded-full bg-amber-400/10 text-amber-300 px-2 py-1 text-[11px]">Warm</span>
+                </div>
+                <p className="text-slate-400">Headless browser workers are ready to scrape live sources for the current workspace.</p>
+              </div>
+              <div className="rounded-3xl border border-slate-800/80 bg-slate-900/80 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-semibold text-slate-100">Data Persistence</p>
+                  <span className="rounded-full bg-slate-700/80 text-slate-300 px-2 py-1 text-[11px]">Local</span>
+                </div>
+                <p className="text-slate-400">Research sessions and exported artifacts are stored in your browser so you can reload without losing context.</p>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setMcpDrawerOpen(false)}
+            className="flex-1 bg-transparent"
+            aria-label="Close overlay"
+          />
+        </div>
+      )}
+
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} onAuthenticate={handleAuthSuccess} />
+      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} user={user} onLogout={handleLogout} />
     </div>
   );
 }
