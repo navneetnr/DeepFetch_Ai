@@ -43,7 +43,8 @@ class ResearcherNode:
         scrape_tasks = []
         for item in discovered_urls[:4]:  # Top candidate URLs
             url = item["url"]
-            scrape_tasks.append(browser_mcp_tool.scrape_url(url))
+            # Pass the search snippet as a fallback into the scraper MCP tool
+            scrape_tasks.append(browser_mcp_tool.scrape_url(url, snippet=item.get("snippet")))
 
         if scrape_tasks:
             scrape_results = await asyncio.gather(*scrape_tasks, return_exceptions=True)
