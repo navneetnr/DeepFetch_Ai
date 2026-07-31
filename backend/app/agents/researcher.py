@@ -33,6 +33,7 @@ class ResearcherNode:
                         "title": res.get("title", ""),
                         "url": res.get("url", ""),
                         "snippet": res.get("snippet", ""),
+                        "raw_snippet": res.get("raw_snippet", res.get("snippet", "")),
                     })
 
         log_search = f"[Researcher] Discovered {len(discovered_urls)} target URLs across sub-queries."
@@ -60,11 +61,11 @@ class ResearcherNode:
                     title = result.get("title", title)
 
                 # If Playwright or HTTP fallback returned too little content, use the search snippet fallback
-                if not content_text or len(content_text.strip()) < 100:
-                    snippet_fallback = item.get("snippet", "") or item.get("raw_snippet", "")
+                if not content_text or len(content_text.strip()) < 300:
+                    snippet_fallback = item.get("raw_snippet", "") or item.get("snippet", "")
                     if snippet_fallback:
                         logger.info(f"Using snippet fallback for {item['url']} (len snippet={len(snippet_fallback)})")
-                        content_text = snippet_fallback
+                        content_text = f"{content_text}\n\n{snippet_fallback}".strip() if content_text else snippet_fallback
                         # mark status as 200 to indicate valid fallback content
                         status_code = status_code or 200
 

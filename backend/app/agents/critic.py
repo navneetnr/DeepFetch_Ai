@@ -21,11 +21,7 @@ class CriticNode:
         logs.append(log_start)
 
         total_content_length = sum(len(item.get("content", "")) for item in scraped_data)
-        text_corpus = "\n".join(item.get("content", "") for item in scraped_data).lower()
-        query_terms = [term for term in state.get("user_query", "").lower().split() if len(term) > 3]
-        keywords_found = sum(1 for term in set(query_terms) if term in text_corpus)
-        has_relevant_keyword = keywords_found > 0
-        has_sufficient_data = total_content_length >= 1000 and has_relevant_keyword
+        has_sufficient_data = total_content_length >= 1000
 
         if has_sufficient_data or revision_count >= self.max_revisions:
             verdict = "APPROVED"

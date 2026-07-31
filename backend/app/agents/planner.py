@@ -32,10 +32,9 @@ class PlannerNode:
                 )
                 system_prompt = (
                     "You are an expert Autonomous Research Planner. Given a user's research query, "
-                    "extract 2 to 3 distinct, concise keyword queries targeting different angles. "
-                    "Each query should be natural, specific, and directly usable for web search. "
-                    "Do NOT append any boilerplate text like 'overview', 'summary', 'facts', or 'citations'. "
-                    "Return ONLY a JSON array of strings, e.g. [\"NVIDIA Blackwell B200 vs AMD MI300X specs memory bandwidth TFLOPS\", \"NVIDIA vs AMD AI accelerator market share 2026 data center revenue\", \"AMD MI300X ROCm vs NVIDIA CUDA pricing TCO\"]."
+                    "extract exactly 3 short, keyword-focused sub-queries targeting different angles. "
+                    "Each query should be concise, search-ready, and should NOT include boilerplate phrases like 'overview', 'summary', 'facts', or 'citations'. "
+                    "Return ONLY a JSON array of strings, e.g. [\"NVIDIA Blackwell B200 vs AMD Instinct MI300X specs memory bandwidth FP8\", \"NVIDIA vs AMD AI GPU data center market share 2026\", \"AMD MI300X ROCm vs CUDA B200 price per token\"]."
                 )
                 messages = [
                     SystemMessage(content=system_prompt),
@@ -57,12 +56,12 @@ class PlannerNode:
                 logger.error(f"[Planner] LLM decomposition failed: {e}. Falling back to NLP decomposer.")
 
         if not sub_queries:
-            # Fallback deterministic sub-query strategy: produce concise, natural search phrases
+            # Fallback deterministic sub-query strategy: produce concise, keyword-focused searches
             base = user_query.strip()
             sub_queries = [
-                f"{base}",
-                f"{base} developments 2026",
-                f"{base} comparison analysis",
+                f"{base} specs memory bandwidth",
+                f"{base} data center market share 2026",
+                f"{base} price per token",
             ]
 
         log_result = f"[Planner] Generated {len(sub_queries)} sub-queries: {sub_queries}"
