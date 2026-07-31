@@ -32,9 +32,10 @@ class PlannerNode:
                 )
                 system_prompt = (
                     "You are an expert Autonomous Research Planner. Given a user's research query, "
-                    "extract 2 to 3 concise, natural-sounding search phrases suitable for web search (each phrase should be 3-10 words). "
-                    "Do NOT append any boilerplate words like 'overview', 'summary', 'facts', or 'citations'. "
-                    "Return ONLY a JSON array of strings, e.g. [\"NVIDIA Blackwell vs AMD MI300X architecture 2026\", \"AMD MI300X vs Blackwell market share\"]."
+                    "extract 2 to 3 distinct, concise keyword queries targeting different angles. "
+                    "Each query should be natural, specific, and directly usable for web search. "
+                    "Do NOT append any boilerplate text like 'overview', 'summary', 'facts', or 'citations'. "
+                    "Return ONLY a JSON array of strings, e.g. [\"NVIDIA Blackwell B200 vs AMD MI300X specs memory bandwidth TFLOPS\", \"NVIDIA vs AMD AI accelerator market share 2026 data center revenue\", \"AMD MI300X ROCm vs NVIDIA CUDA pricing TCO\"]."
                 )
                 messages = [
                     SystemMessage(content=system_prompt),

@@ -21,10 +21,11 @@ class CriticNode:
         logs.append(log_start)
 
         total_content_length = sum(len(item.get("content", "")) for item in scraped_data)
-        # Consider fallback snippets as valid context: approve if total length > 300
-        # or at least one scraped item has >=100 chars.
-        any_item_enough = any(len(item.get("content", "")) >= 100 for item in scraped_data)
-        has_sufficient_data = (total_content_length > 300 and len(scraped_data) >= 1) or any_item_enough
+        text_corpus = "\n".join(item.get("content", "") for item in scraped_data).lower()
+        query_terms = [term for term in state.get("user_query", "").lower().split() if len(term) > 3]
+        keywords_found = sum(1 for term in set(query_terms) if term in text_corpus)
+        has_relevant_keyword = keywords_found > 0
+        has_sufficient_data = total_content_length >= 1000 and has_relevant_keyword
 
         if has_sufficient_data or revision_count >= self.max_revisions:
             verdict = "APPROVED"

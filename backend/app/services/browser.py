@@ -1,6 +1,5 @@
 import asyncio
 from typing import Dict, Any, Optional
-import asyncio
 import httpx
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright, Browser, Page, TimeoutError as PlaywrightTimeoutError
@@ -79,6 +78,13 @@ class PlaywrightService:
                 # Clean and convert to structured Markdown via DOMScraper
                 scraped_result = scraper_service.extract_structured_markdown(raw_html, url=url)
                 scraped_result["status_code"] = status_code
+
+                if snippet and scraped_result.get("content") and len(scraped_result.get("content", "")) < 300:
+                    # Append the raw Tavily snippet to strengthen the context when browser text is too short.
+                    current_content = scraped_result.get("content", "").strip()
+                    appended_content = f"{current_content}\n\n{snippet}" if current_content else snippet
+                    scraped_result["content"] = appended_content
+                    scraped_result["content_length"] = len(appended_content)
 
                 # If playwright returned empty content, fallthrough to HTTP fallback below
                 if not scraped_result.get("content") or scraped_result.get("content_length", 0) == 0:
