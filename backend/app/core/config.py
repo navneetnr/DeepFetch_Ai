@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o"
     GROQ_API_KEY: Optional[str] = None
     GROQ_MODEL: str = "llama-3.1-70b-versatile"
+    TAVILY_API_KEY: Optional[str] = None
 
     # Storage & Cache
     QDRANT_HOST: str = "localhost"

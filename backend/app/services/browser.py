@@ -48,7 +48,7 @@ class PlaywrightService:
 
                 page: Page = await context.new_page()
 
-                # Abort images, fonts and css to speed up scraping and reduce bandwidth
+                # Abort heavy assets to speed up scraping and reduce bandwidth.
                 async def route_handler(route):
                     url_path = route.request.url
                     if url_path.endswith((".png", ".jpg", ".jpeg", ".svg", ".css", ".webp", ".woff", ".woff2")):
@@ -58,7 +58,6 @@ class PlaywrightService:
 
                 await page.route("**/*", route_handler)
 
-                # Try to load DOMContent and give JS a short time to run
                 try:
                     response = await page.goto(url, wait_until="domcontentloaded", timeout=self.timeout)
                 except PlaywrightTimeoutError:
@@ -74,62 +73,46 @@ class PlaywrightService:
                 await asyncio.sleep(0.5)
 
                 raw_html = await page.content()
-
-                # Clean and convert to structured Markdown via DOMScraper
                 scraped_result = scraper_service.extract_structured_markdown(raw_html, url=url)
                 scraped_result["status_code"] = status_code
+                scraped_result = self._ensure_snippet_fallback(scraped_result, url, snippet)
 
-                if snippet and scraped_result.get("content") and len(scraped_result.get("content", "")) < 300:
-                    # Append the raw Tavily snippet to strengthen the context when browser text is too short.
-                    current_content = scraped_result.get("content", "").strip()
-                    appended_content = f"{current_content}\n\n{snippet}" if current_content else snippet
-                    scraped_result["content"] = appended_content
-                    scraped_result["content_length"] = len(appended_content)
-
-                # If playwright returned empty content, fallthrough to HTTP fallback below
-                if not scraped_result.get("content") or scraped_result.get("content_length", 0) == 0:
+                if not scraped_result.get("content"):
                     raise RuntimeError("Playwright returned empty content")
 
                 return scraped_result
 
             except Exception as e:
                 logger.warning(f"Playwright failed for {url}: {e}", exc_info=True)
-                # Fallback: try HTTP GET + BeautifulSoup text extraction
                 try:
                     headers = {"User-Agent": self.user_agent}
                     async with httpx.AsyncClient(timeout=15.0, headers=headers, follow_redirects=True) as client:
                         resp = await client.get(url)
                         if resp.status_code == 200 and resp.text:
                             soup = BeautifulSoup(resp.text, "html.parser")
-                            # Extract main article-ish text heuristically
                             for selector in ("article", "main", "#content", ".content", "body"):
                                 el = soup.select_one(selector)
                                 if el and el.get_text(strip=True):
                                     text = el.get_text(separator="\n", strip=True)
                                     scraped_result = scraper_service.extract_structured_markdown(text, url=url)
                                     scraped_result["status_code"] = resp.status_code
+                                    scraped_result = self._ensure_snippet_fallback(scraped_result, url, snippet)
                                     if scraped_result.get("content"):
                                         return scraped_result
-                            # As last resort, take full body text
+
                             body_text = soup.get_text(separator="\n", strip=True)
                             if body_text:
                                 scraped_result = scraper_service.extract_structured_markdown(body_text, url=url)
                                 scraped_result["status_code"] = resp.status_code
+                                scraped_result = self._ensure_snippet_fallback(scraped_result, url, snippet)
                                 if scraped_result.get("content"):
                                     return scraped_result
                 except Exception:
                     logger.warning(f"HTTP/BS4 fallback also failed for {url}", exc_info=True)
 
-                # Final fallback: use provided snippet if available
                 if snippet:
-                    logger.info(f"Falling back to Tavily snippet for {url}")
-                    return {
-                        "title": snippet[:120],
-                        "url": url,
-                        "content": snippet,
-                        "content_length": len(snippet),
-                        "status_code": 200,
-                    }
+                    logger.info(f"Falling back to Tavily/search snippet for {url}")
+                    return self._snippet_result(url, snippet, status_code=200)
 
                 logger.error(f"All scrapers failed for {url}")
                 return {
@@ -142,6 +125,24 @@ class PlaywrightService:
             finally:
                 if browser:
                     await browser.close()
+
+    def _ensure_snippet_fallback(self, scraped_result: Dict[str, Any], url: str, snippet: Optional[str]) -> Dict[str, Any]:
+        content = (scraped_result.get("content") or "").strip()
+        if snippet and len(content) < 300:
+            logger.info(f"Appending search snippet fallback for {url} (rendered chars={len(content)}, snippet chars={len(snippet)})")
+            content = f"{content}\n\n{snippet}".strip() if content else snippet
+            scraped_result["content"] = content
+            scraped_result["content_length"] = len(content)
+        return scraped_result
+
+    def _snippet_result(self, url: str, snippet: str, status_code: int) -> Dict[str, Any]:
+        return {
+            "title": snippet[:120],
+            "url": url,
+            "content": snippet,
+            "content_length": len(snippet),
+            "status_code": status_code,
+        }
 
 
 playwright_service = PlaywrightService()

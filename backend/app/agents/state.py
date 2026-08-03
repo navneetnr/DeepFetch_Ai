@@ -12,6 +12,7 @@ class ResearchState(TypedDict):
     final_report: str
     execution_logs: List[str]
     revision_count: int
+    max_revisions_exhausted: Optional[bool]
     # Optional combined text extracted from uploaded files
     file_context: Optional[str]
     # Search mode: 'live' | 'document' | 'hybrid'

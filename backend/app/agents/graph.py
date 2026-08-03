@@ -10,7 +10,7 @@ from app.core.logging import logger
 def route_after_critic(state: ResearchState) -> str:
     """Conditional router following Critic node verdict."""
     verdict = state.get("critic_verdict", "APPROVED")
-    if verdict == "REJECTED":
+    if verdict == "REJECTED" and not state.get("max_revisions_exhausted", False):
         logger.info("[Graph] Router: Re-routing to 'researcher' node for additional data collection loop.")
         return "researcher"
     logger.info("[Graph] Router: Routing to 'synthesizer' node for report generation.")

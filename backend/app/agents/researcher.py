@@ -63,10 +63,11 @@ class ResearcherNode:
                 # If Playwright or HTTP fallback returned too little content, use the search snippet fallback
                 if not content_text or len(content_text.strip()) < 300:
                     snippet_fallback = item.get("raw_snippet", "") or item.get("snippet", "")
-                    if snippet_fallback:
+                    if snippet_fallback and snippet_fallback not in content_text:
                         logger.info(f"Using snippet fallback for {item['url']} (len snippet={len(snippet_fallback)})")
                         content_text = f"{content_text}\n\n{snippet_fallback}".strip() if content_text else snippet_fallback
-                        # mark status as 200 to indicate valid fallback content
+                    # mark status as 200 to indicate valid fallback content
+                    if snippet_fallback:
                         status_code = status_code or 200
 
                 if content_text:

@@ -58,6 +58,7 @@ async def execute_research(
             "final_report": "",
             "execution_logs": [f"[System] Initiated autonomous workflow for query: '{query}' (mode={search_mode})"],
             "revision_count": 0,
+            "max_revisions_exhausted": False,
             "file_context": combined_text,
             "search_mode": search_mode,
         }
@@ -147,6 +148,7 @@ async def stream_research(
         "final_report": "",
         "execution_logs": [f"[System] Initiated real-time streaming workflow for: '{query}'"],
         "revision_count": 0,
+        "max_revisions_exhausted": False,
         "file_context": combined_text,
         "search_mode": search_mode,
     }
