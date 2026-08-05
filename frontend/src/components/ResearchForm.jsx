@@ -1,18 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Sparkles, Zap, Globe, ArrowRight, FileText } from 'lucide-react';
-
-const PRESET_QUERIES = [
-  'Latest developments in Quantum Computing commercialization 2026',
-  'NVIDIA vs AMD AI GPU roadmap and market share analysis',
-  'CRISPR gene editing therapy FDA approvals and clinical trials',
-  'Global Renewable Energy grid storage breakthroughs 2026',
-];
+import { Paperclip, ArrowUp, X } from 'lucide-react';
 
 export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' }) {
   const [query, setQuery] = useState(initialQuery);
   const [files, setFiles] = useState([]);
-  const [isDragActive, setIsDragActive] = useState(false);
-  const [searchMode, setSearchMode] = useState('live'); // 'live' | 'document' | 'hybrid'
 
   useEffect(() => {
     setQuery(initialQuery || '');
@@ -21,153 +12,91 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!query.trim() || isStreaming) return;
-    onSubmit({ query: query.trim(), files, searchMode });
+    onSubmit({ query: query.trim(), files, searchMode: 'live' });
+    setQuery('');
+    setFiles([]);
   };
 
-  const handleSelectPreset = (preset) => {
-    setQuery(preset);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (query.trim() && !isStreaming) {
+        onSubmit({ query: query.trim(), files, searchMode: 'live' });
+        setQuery('');
+        setFiles([]);
+      }
+    }
   };
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="relative group">
-<div className="absolute -inset-1 bg-slate-700/30 rounded-3xl blur opacity-60 transition duration-500"></div>
-        <div className="relative rounded-[28px] p-4 md:p-5 shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131a29] transition-colors duration-200">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="flex items-center gap-3 md:w-1/3">
-              <div className="p-3 rounded-3xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-300">
-                <Search className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">Deep research query</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Enter your objective to begin the live synthesis workflow.</p>
-              </div>
-            </div>
-            <div className="flex-1">
-              <div
-className={`w-full rounded-[16px] border-2 ${isDragActive ? 'border-indigo-500 bg-indigo-50 dark:bg-[#182030]/60' : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-[#131a29]'} px-4 py-3 transition`}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragActive(true);
-                }}
-                onDragLeave={(e) => {
-                  e.preventDefault();
-                  setIsDragActive(false);
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setIsDragActive(false);
-                  const dropped = Array.from(e.dataTransfer.files || []);
-                  if (dropped.length) setFiles((prev) => [...prev, ...dropped].slice(0, 6));
-                }}
-              >
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Ask any complex research query for live multi-agent synthesis..."
-                  disabled={isStreaming}
-                  className="w-full rounded-md bg-transparent text-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-colors duration-200"
-                />
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2 rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1a1f2b] px-3 py-2 shadow-lg shadow-slate-900/5 focus-within:border-indigo-500 dark:focus-within:border-indigo-500 transition-colors duration-200"
+      >
+        {/* Upload attachment */}
+        <input
+          id="gemini-file-input"
+          type="file"
+          multiple
+          onChange={(e) => {
+            const picked = Array.from(e.target.files || []);
+            if (picked.length) setFiles((prev) => [...prev, ...picked].slice(0, 6));
+            e.target.value = null;
+          }}
+          className="hidden"
+        />
+        <label
+          htmlFor="gemini-file-input"
+          className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors duration-200"
+          title="Attach files"
+        >
+          <Paperclip className="w-5 h-5" />
+        </label>
 
-                <div className="mt-3 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">Files:</label>
-                    <div className="flex gap-2 flex-wrap">
-                      {files.map((f, idx) => (
-                        <span key={idx} className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-900/70 px-3 py-1 text-xs text-slate-700 dark:text-slate-300">
-                          <FileText className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-300" />
-                          {f.name}
-                          <button
-                            type="button"
-                            onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
-                            className="ml-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                          >
-                            ✕
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask DeepFetch anything..."
+          disabled={isStreaming}
+          className="flex-1 bg-transparent text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none py-1.5"
+          autoFocus
+        />
 
-                  <div className="flex items-center gap-3">
-                    <input
-                      id="file-input"
-                      type="file"
-                      multiple
-                      onChange={(e) => {
-                        const picked = Array.from(e.target.files || []);
-                        if (picked.length) setFiles((prev) => [...prev, ...picked].slice(0, 6));
-                        e.target.value = null;
-                      }}
-                      className="hidden"
-                    />
-                    <label htmlFor="file-input" className="rounded-md bg-slate-200 dark:bg-slate-800/60 px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200">
-                      Upload
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={!query.trim() || isStreaming}
-              className={`inline-flex items-center justify-center gap-2 rounded-[24px] px-6 py-4 text-sm font-semibold transition-all duration-200 ${
-                !query.trim() || isStreaming
-                  ? 'bg-slate-200 dark:bg-slate-700/60 text-slate-400 cursor-not-allowed'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-500 hover:-translate-y-0.5 shadow-lg shadow-indigo-500/20'
-              }`}
-            >
-              {isStreaming ? (
-                <>
-                  <Zap className="w-5 h-5 animate-spin" />
-                  <span>Fetching...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  <span>DeepFetch</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <div className="mt-3 flex items-center gap-3 text-sm">
-        <div className="inline-flex items-center gap-2">
-          <label className="text-xs text-slate-500 dark:text-slate-400">Search Mode</label>
-          <div className="inline-flex rounded-xl bg-slate-100 dark:bg-slate-900/50 p-1 transition-colors duration-200">
-            {['live', 'document', 'hybrid'].map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setSearchMode(mode)}
-                disabled={isStreaming}
-                className={`px-3 py-1 text-xs rounded-lg ${searchMode === mode ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-300'}`}
-              >
-                {mode}
-              </button>
+        {files.length > 0 && (
+          <div className="flex items-center gap-1">
+            {files.map((f, idx) => (
+              <span key={idx} className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-1 text-[10px] text-slate-700 dark:text-slate-300">
+                {f.name}
+                <button
+                  type="button"
+                  onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                  className="text-slate-500 hover:text-rose-400"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
             ))}
           </div>
-        </div>
-      </div>
+        )}
 
-      <div className="mt-5 flex flex-wrap gap-2">
-<span className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-[#182030] px-3 py-2 text-xs uppercase tracking-widest text-slate-700 dark:text-slate-300">
-          <Globe className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" /> Suggestions
-        </span>
-        {PRESET_QUERIES.map((preset, idx) => (
-          <button
-            key={idx}
-            onClick={() => handleSelectPreset(preset)}
-            disabled={isStreaming}
-className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#182030] px-4 py-2 text-xs text-slate-700 dark:text-slate-300 transition hover:border-indigo-500/60 hover:text-indigo-600 dark:hover:text-indigo-200"
-          >
-            {preset}
-          </button>
-        ))}
-      </div>
+        {/* Send button */}
+        <button
+          type="submit"
+          disabled={!query.trim() || isStreaming}
+          className={`p-2.5 rounded-full transition-all duration-200 ${
+            !query.trim() || isStreaming
+              ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+          }`}
+          title={isStreaming ? 'Researching...' : 'Send'}
+          aria-label="Send"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      </form>
     </div>
   );
 }

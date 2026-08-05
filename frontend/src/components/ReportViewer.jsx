@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
 import { marked } from 'marked';
-import { FileText, Copy, Check, Download, Share2, Sparkles, BookOpen, MoreVertical } from 'lucide-react';
+import { Copy, Check, Download } from 'lucide-react';
 
 export default function ReportViewer({ report, query }) {
   const [copied, setCopied] = useState(false);
 
-if (!report) {
-    return (
-      <div className="glass-panel rounded-2xl p-12 text-center text-slate-500 dark:text-slate-400">
-        <FileText className="w-12 h-12 mx-auto mb-4 text-slate-400 dark:text-slate-600 animate-pulse" />
-        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">No Final Report Generated Yet</h3>
-        <p className="text-sm mt-1">Submit a research query to start the multi-agent synthesis pipeline.</p>
-      </div>
-    );
+  if (!report) {
+    return null;
   }
 
   const parsedHtml = marked.parse(report);
@@ -34,70 +28,33 @@ if (!report) {
   };
 
   return (
-<div className="rounded-2xl p-8 shadow-2xl space-y-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f1420] transition-colors duration-200">
-{/* Header & Actions */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-gray-200 dark:border-slate-800 pb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl text-white shadow-lg">
-            <Sparkles className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Citation-Backed Research Report</h2>
-            <p className="text-xs text-indigo-600 dark:text-indigo-400 font-mono">Zero-Hallucination Multi-Agent Synthesis</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 rounded-2xl bg-slate-100 dark:bg-slate-900/70 border border-gray-200 dark:border-slate-800 p-1.5 transition-colors duration-200">
+    <div className="w-full max-w-3xl mx-auto">
+      {/* Minimal action bar */}
+      <div className="flex items-center justify-between mb-4 px-1">
+        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{query}</p>
+        <div className="flex items-center gap-1">
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-gray-200 dark:border-slate-700 transition-all duration-200"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
             title="Copy markdown"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />}
-            <span>{copied ? 'Copied!' : 'Copy'}</span>
+            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
           </button>
-
           <button
             onClick={handleDownload}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition-all duration-200"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200"
             title="Download markdown report"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download</span>
-          </button>
-
-          <button
-            onClick={() => navigator.clipboard.writeText(window.location.href)}
-            className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-medium text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 border border-transparent transition-all duration-200"
-            title="Share"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 border border-transparent transition-all duration-200"
-            title="More options"
-          >
-            <MoreVertical className="w-3.5 h-3.5" />
+            <Download className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Rendered Markdown Body */}
-<div className="bg-slate-50 dark:bg-[#131a29] rounded-xl p-6 border border-slate-200 dark:border-slate-800 transition-colors duration-200">
-        <div
-          className="markdown-body text-slate-800 dark:text-slate-200 leading-relaxed space-y-4"
-          dangerouslySetInnerHTML={{ __html: parsedHtml }}
-        />
-      </div>
-
-      {/* Footer Provenance Stamp */}
-      <div className="pt-4 border-t border-gray-200 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-mono">
-        <span className="flex items-center">
-          <BookOpen className="w-4 h-4 mr-1 text-indigo-500 dark:text-indigo-400" /> Verified by DeepFetch AI Critic & Verifier Loop
-        </span>
-        <span>Output: Markdown (.md)</span>
-      </div>
+      {/* Reading canvas */}
+      <div
+        className="markdown-body text-slate-800 dark:text-slate-200 leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: parsedHtml }}
+      />
     </div>
   );
 }
