@@ -137,10 +137,12 @@ return (
       {/* Top Header */}
 <div className="p-4 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0f1420] space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 overflow-hidden">
-            <div className="p-2 bg-indigo-600/15 rounded-xl shadow-[0_10px_30px_rgba(79,70,229,0.16)] flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-300" />
-            </div>
+<div className="flex items-center space-x-3 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="DeepFetch AI Logo"
+              className="w-9 h-9 object-contain rounded-md flex-shrink-0"
+            />
             {isOpen && (
               <div className="truncate">
                 <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-none flex items-center gap-1.5">

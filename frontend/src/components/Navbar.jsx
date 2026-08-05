@@ -60,6 +60,11 @@ return (
           )}
 
 <div className="flex items-center space-x-2 text-xs font-mono">
+            <img
+              src="/logo.png"
+              alt="DeepFetch AI Logo"
+              className="w-6 h-6 object-contain rounded-md"
+            />
             <span className="text-slate-500">DeepFetch Workspace</span>
             <span className="text-slate-600 dark:text-slate-600">/</span>
             <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1">
