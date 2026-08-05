@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { marked } from 'marked';
-import { FileText, Copy, Check, Download, Share2, Sparkles, BookOpen } from 'lucide-react';
+import { FileText, Copy, Check, Download, Share2, Sparkles, BookOpen, MoreVertical } from 'lucide-react';
 
 export default function ReportViewer({ report, query }) {
   const [copied, setCopied] = useState(false);
@@ -47,21 +47,38 @@ export default function ReportViewer({ report, query }) {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 rounded-2xl bg-slate-900/70 border border-slate-800 p-1.5">
           <button
             onClick={handleCopy}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all duration-200 hover:-translate-y-0.5"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all duration-200"
+            title="Copy markdown"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
-            <span>{copied ? 'Copied!' : 'Copy Markdown'}</span>
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+            <span>{copied ? 'Copied!' : 'Copy'}</span>
           </button>
 
           <button
             onClick={handleDownload}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition-all duration-200"
+            title="Download markdown report"
           >
-            <Download className="w-4 h-4" />
-            <span>Download Report</span>
+            <Download className="w-3.5 h-3.5" />
+            <span>Download</span>
+          </button>
+
+          <button
+            onClick={() => navigator.clipboard.writeText(window.location.href)}
+            className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 border border-transparent transition-all duration-200"
+            title="Share"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-transparent transition-all duration-200"
+            title="More options"
+          >
+            <MoreVertical className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

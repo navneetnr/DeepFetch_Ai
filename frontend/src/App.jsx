@@ -1,6 +1,6 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Cpu, Globe, FileText, Sparkles, Activity, Github, ArrowRight, Server, ChevronRight } from 'lucide-react';
+import { FileText, Sparkles, Activity, ChevronRight } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import ResearchForm from './components/ResearchForm';
@@ -9,14 +9,17 @@ import SourceCitationDashboard from './components/SourceCitationDashboard';
 import ReportViewer from './components/ReportViewer';
 import AuthModal from './components/AuthModal';
 import SettingsModal from './components/SettingsModal';
+import LogoutConfirmationModal from './components/LogoutConfirmationModal';
 
 const TOKEN_STORAGE_KEY = 'deepfetch_access_token';
 const USER_STORAGE_KEY = 'deepfetch_workspace_user';
 
 export default function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+const [sidebarOpen, setSidebarOpen] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
+  const [traceOpen, setTraceOpen] = useState(false);
   const [mcpDrawerOpen, setMcpDrawerOpen] = useState(false);
   const [activeRightTab, setActiveRightTab] = useState('report');
   const [activeTab, setActiveTab] = useState('report');
@@ -340,10 +343,16 @@ const handleLoadHistory = (item) => {
     setAuthOpen(false);
   };
 
-  const handleLogout = () => {
+const handleLogout = () => {
+    setSettingsOpen(false);
+    setConfirmLogoutOpen(true);
+  };
+
+  const handleConfirmLogout = () => {
     setToken(null);
     setUser(null);
-    setSettingsOpen(false);
+    setConfirmLogoutOpen(false);
+    setTraceOpen(false);
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     localStorage.removeItem(USER_STORAGE_KEY);
   };
@@ -390,137 +399,136 @@ const handleLoadHistory = (item) => {
       />
 
       <main className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? 288 : 80 }}>
-        <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-          <section className="grid grid-cols-1 xl:grid-cols-[0.78fr_0.22fr] gap-6">
-            <div className="glass-panel rounded-[32px] border border-slate-800/70 p-8 shadow-2xl">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <p className="mb-3 text-xs uppercase tracking-[0.35em] text-indigo-300/70">Research Workspace</p>
-                  <h1 className="text-4xl font-semibold tracking-tight text-white">
-                    Discover insights, synthesize reports, and manage your research flow.
-                  </h1>
-                  <p className="mt-4 max-w-2xl text-slate-400 leading-relaxed">
-                    DeepFetch AI combines live agent execution, historical session storage, and export-ready artifacts in a professional SaaS research dashboard.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 rounded-3xl border border-slate-700/50 bg-slate-900/80 p-5 shadow-inner">
-                  <div className="flex items-center justify-between text-sm text-slate-400">
-                    <span>Workspace Status</span>
-                    <span className="rounded-full bg-slate-900 px-3 py-1 text-xs uppercase tracking-[0.16em] text-slate-300">{isStreaming ? 'Active' : 'Idle'}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
-                    <div className="rounded-2xl bg-slate-900/80 p-4">
-                      <p className="font-semibold text-slate-100">Sessions</p>
-                      <p className="mt-2 text-2xl text-indigo-300">{history.length}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-900/80 p-4">
-                      <p className="font-semibold text-slate-100">Saved Reports</p>
-                      <p className="mt-2 text-2xl text-emerald-300">{history.filter((item) => item.report).length}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleNewResearch}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 transition-all"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                    New Research Session
-                  </button>
-                </div>
+        <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
+          {/* Slim Stats Bar */}
+          {hasActiveWorkspace && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/60 bg-slate-900/50 px-4 py-2 text-xs text-slate-400">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="font-mono">{history.length} sessions</span>
+                </span>
+                <span className="hidden sm:flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="font-mono">{history.filter((item) => item.report).length} saved reports</span>
+                </span>
+                <span className="hidden md:flex items-center gap-1.5">
+                  <span className={`h-2 w-2 rounded-full ${isStreaming ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
+                  {isStreaming ? 'Streaming active' : 'Workspace idle'}
+                </span>
               </div>
-            </div>
-
-            <div className="glass-panel rounded-[32px] border border-slate-800/70 p-6 shadow-xl bg-slate-950/70">
-              <div className="flex items-center justify-between gap-4 mb-5">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">Quick Actions</p>
-                  <h2 className="text-lg font-semibold text-white">Start a new research query</h2>
-                </div>
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setMcpDrawerOpen(true)}
-                  className="rounded-2xl bg-slate-900/90 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800/80 transition-all duration-200 hover:-translate-y-0.5"
+                  onClick={handleNewResearch}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 px-3 py-1.5 font-medium transition-all"
                 >
-                  MCP Connectivity
+                  <Sparkles className="w-3.5 h-3.5" />
+                  New Session
                 </button>
               </div>
-              <ResearchForm onSubmit={handleStartResearch} isStreaming={isStreaming} initialQuery={currentQuery} />
             </div>
-          </section>
+          )}
 
+          {/* Centered Search Bar */}
+          <div className="pt-2">
+            <ResearchForm onSubmit={handleStartResearch} isStreaming={isStreaming} initialQuery={currentQuery} />
+          </div>
+
+          {/* Canvas / Report Area */}
           {!hasActiveWorkspace ? (
-            <section className="glass-panel rounded-[32px] border border-slate-800/70 p-10 shadow-2xl text-center">
-              <div className="mx-auto max-w-3xl">
-                <div className="inline-flex items-center justify-center rounded-full bg-indigo-600/10 px-4 py-2 text-xs uppercase tracking-[0.35em] text-indigo-200 mb-6">
-                  <Sparkles className="w-4 h-4 mr-2 text-indigo-300" /> Idle Workspace
+            <section className="pt-6 text-center">
+              <div className="mx-auto max-w-xl">
+                <div className="inline-flex items-center justify-center rounded-full bg-indigo-600/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.3em] text-indigo-200 mb-4">
+                  <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-300" /> Deep Research Engine
                 </div>
-                <h2 className="text-3xl font-semibold text-white">Your research hub is ready.</h2>
-                <p className="mt-4 text-slate-400 leading-relaxed">
-                  Enter a research topic to launch a live multi-agent session. Your session history and exported artifacts are stored locally for fast recall.
+                <h2 className="text-3xl font-semibold text-white">Explore any topic in depth.</h2>
+                <p className="mt-3 text-slate-400 leading-relaxed">
+                  Launch a live multi-agent session to plan, scrape verified sources, fact-check, and synthesize a zero-hallucination report.
                 </p>
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  {['Search planning', 'Verified source scraping', 'Fact-checked synthesis', 'Export Markdown/PDF'].map((item) => (
-                    <div key={item} className="rounded-3xl border border-slate-800/70 bg-slate-950/80 p-6 text-left shadow-sm">
-                      <p className="text-sm font-semibold text-slate-100">{item}</p>
-                      <p className="mt-2 text-sm text-slate-400">Designed for a modern research workflow with clean provenance controls and export options.</p>
+                <div className="mt-8 grid gap-3 sm:grid-cols-2 max-w-lg mx-auto">
+                  {['Multi-agent orchestration', 'Playwright live source scraping', 'Critic-verified synthesis', 'Export Markdown / JSON'].map((item) => (
+                    <div key={item} className="rounded-2xl border border-slate-800/70 bg-slate-950/80 p-4 text-left text-sm text-slate-300">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-400" />
+                        {item}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </section>
           ) : (
-            <section className="grid grid-cols-1 xl:grid-cols-[0.85fr_1.15fr] gap-6">
-              <div className="glass-panel rounded-[32px] border border-slate-800/70 p-6 shadow-2xl">
-                <div className="flex items-center justify-between gap-4 mb-6">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">Execution Log</p>
-                    <h2 className="text-2xl font-semibold text-white">Live Agent Stream</h2>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    {isStreaming ? 'Streaming active' : 'Latest execution state'}
-                  </div>
+            <section className="glass-panel rounded-[28px] border border-slate-800/70 p-4 shadow-2xl">
+              {/* Report / Sources toggle */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.25em] text-indigo-300/70">Research artifact</p>
+                  <h2 className="text-lg font-semibold text-white">
+                    {activeRightTab === 'report' ? 'Generated Report' : 'Verified Sources'}
+                  </h2>
                 </div>
-                <AgentTraceViewer
-                  activeNode={activeNode}
-                  logs={logs}
-                  subQueries={subQueries}
-                  criticVerdict={criticVerdict}
-                  isStreaming={isStreaming}
-                />
+                <div className="flex rounded-2xl bg-slate-900/80 p-1 text-xs text-slate-300">
+                  <button
+                    onClick={() => setActiveRightTab('report')}
+                    className={`px-4 py-2 rounded-xl transition-all ${activeRightTab === 'report' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-800'}`}
+                  >
+                    Report View
+                  </button>
+                  <button
+                    onClick={() => setActiveRightTab('sources')}
+                    className={`px-4 py-2 rounded-xl transition-all ${activeRightTab === 'sources' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-800'}`}
+                  >
+                    Sources Panel
+                  </button>
+                </div>
               </div>
 
-              <div className="glass-panel rounded-[32px] border border-slate-800/70 p-6 shadow-2xl">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">Research artifact</p>
-                    <h2 className="text-2xl font-semibold text-white">Final outputs & sources</h2>
-                  </div>
-                  <div className="flex rounded-3xl bg-slate-900/80 p-1 text-sm text-slate-300">
-                    <button
-                      onClick={() => setActiveRightTab('report')}
-                      className={`px-4 py-2 rounded-3xl transition-all ${activeRightTab === 'report' ? 'bg-indigo-500/20 text-indigo-100' : 'hover:bg-slate-800'}`}
-                    >
-                      Report View
-                    </button>
-                    <button
-                      onClick={() => setActiveRightTab('sources')}
-                      className={`px-4 py-2 rounded-3xl transition-all ${activeRightTab === 'sources' ? 'bg-indigo-500/20 text-indigo-100' : 'hover:bg-slate-800'}`}
-                    >
-                      Sources Panel
-                    </button>
-                  </div>
-                </div>
-
-                {activeRightTab === 'report' ? (
-                  <ReportViewer report={report} query={currentQuery} />
-                ) : (
+              {activeRightTab === 'report' ? (
+                <ReportViewer report={report} query={currentQuery} />
+              ) : (
+                <div className="p-3">
                   <SourceCitationDashboard sources={scrapedSources} />
-                )}
-              </div>
+                </div>
+              )}
             </section>
           )}
         </div>
       </main>
+
+      {/* Floating Execution Trace Drawer (bottom-right) */}
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
+        {traceOpen && (
+          <div className="w-[380px] max-w-[calc(100vw-2.5rem)]">
+            <button
+              onClick={() => setTraceOpen(false)}
+              className="float-right mb-2 p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-900/90 border border-slate-700/60 transition-all"
+              aria-label="Close trace drawer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <AgentTraceViewer
+              activeNode={activeNode}
+              logs={logs}
+              subQueries={subQueries}
+              criticVerdict={criticVerdict}
+              isStreaming={isStreaming}
+            />
+          </div>
+        )}
+
+        <button
+          onClick={() => setTraceOpen((open) => !open)}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold shadow-xl transition-all duration-200 border ${
+            isStreaming
+              ? 'bg-indigo-600 text-white border-indigo-500/50 hover:bg-indigo-500'
+              : 'bg-slate-900/95 text-slate-300 border-slate-700/60 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <Activity className={`w-4 h-4 ${isStreaming ? 'animate-pulse text-white' : 'text-indigo-400'}`} />
+          <span>{isStreaming ? 'Live Agent Trace' : 'Execution Trace'}</span>
+          <span className={`h-2 w-2 rounded-full ${isStreaming ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'}`} />
+        </button>
+      </div>
 
       {mcpDrawerOpen && (
         <div className="fixed inset-0 z-50 flex items-stretch bg-slate-950/80 backdrop-blur-sm">
@@ -570,8 +578,13 @@ const handleLoadHistory = (item) => {
         </div>
       )}
 
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={handleAuthSuccess} />
+<AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={handleAuthSuccess} />
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} user={user} onLogout={handleLogout} />
+      <LogoutConfirmationModal
+        isOpen={confirmLogoutOpen}
+        onClose={() => setConfirmLogoutOpen(false)}
+        onConfirm={handleConfirmLogout}
+      />
     </div>
   );
 }
