@@ -359,7 +359,7 @@ const handleLogout = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 bg-slate-radial flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors duration-200">
         <AuthModal
           isOpen={true}
           onClose={() => {}}
@@ -371,7 +371,7 @@ const handleLogout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 bg-slate-radial">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Navbar
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((open) => !open)}
@@ -400,9 +400,9 @@ const handleLogout = () => {
 
       <main className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? 288 : 80 }}>
         <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
-          {/* Slim Stats Bar */}
+{/* Slim Stats Bar */}
           {hasActiveWorkspace && (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/60 bg-slate-900/50 px-4 py-2 text-xs text-slate-400">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/60 bg-slate-50 dark:bg-slate-900/50 px-4 py-2 text-xs text-slate-600 dark:text-slate-400 transition-colors duration-200">
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 text-indigo-400" />
@@ -420,7 +420,7 @@ const handleLogout = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleNewResearch}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 px-3 py-1.5 font-medium transition-all"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 font-medium transition-all"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   New Session
@@ -435,19 +435,19 @@ const handleLogout = () => {
           </div>
 
           {/* Canvas / Report Area */}
-          {!hasActiveWorkspace ? (
+{!hasActiveWorkspace ? (
             <section className="pt-6 text-center">
               <div className="mx-auto max-w-xl">
-                <div className="inline-flex items-center justify-center rounded-full bg-indigo-600/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.3em] text-indigo-200 mb-4">
-                  <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-300" /> Deep Research Engine
+                <div className="inline-flex items-center justify-center rounded-full bg-indigo-600/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.3em] text-indigo-700 dark:text-indigo-200 mb-4">
+                  <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-500 dark:text-indigo-300" /> Deep Research Engine
                 </div>
-                <h2 className="text-3xl font-semibold text-white">Explore any topic in depth.</h2>
-                <p className="mt-3 text-slate-400 leading-relaxed">
+                <h2 className="text-3xl font-semibold text-slate-900 dark:text-white">Explore any topic in depth.</h2>
+                <p className="mt-3 text-slate-600 dark:text-slate-400 leading-relaxed">
                   Launch a live multi-agent session to plan, scrape verified sources, fact-check, and synthesize a zero-hallucination report.
                 </p>
                 <div className="mt-8 grid gap-3 sm:grid-cols-2 max-w-lg mx-auto">
                   {['Multi-agent orchestration', 'Playwright live source scraping', 'Critic-verified synthesis', 'Export Markdown / JSON'].map((item) => (
-                    <div key={item} className="rounded-2xl border border-slate-800/70 bg-slate-950/80 p-4 text-left text-sm text-slate-300">
+                    <div key={item} className="rounded-2xl border border-slate-300 dark:border-slate-800/70 bg-white dark:bg-slate-950/80 p-4 text-left text-sm text-slate-700 dark:text-slate-300 transition-colors duration-200">
                       <div className="flex items-center gap-2">
                         <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-400" />
                         {item}
@@ -462,21 +462,21 @@ const handleLogout = () => {
               {/* Report / Sources toggle */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.25em] text-indigo-300/70">Research artifact</p>
-                  <h2 className="text-lg font-semibold text-white">
+                  <p className="text-[11px] uppercase tracking-[0.25em] text-indigo-600 dark:text-indigo-300/70">Research artifact</p>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     {activeRightTab === 'report' ? 'Generated Report' : 'Verified Sources'}
                   </h2>
                 </div>
-                <div className="flex rounded-2xl bg-slate-900/80 p-1 text-xs text-slate-300">
+                <div className="flex rounded-2xl bg-slate-100 dark:bg-slate-900/80 p-1 text-xs text-slate-700 dark:text-slate-300 transition-colors duration-200">
                   <button
                     onClick={() => setActiveRightTab('report')}
-                    className={`px-4 py-2 rounded-xl transition-all ${activeRightTab === 'report' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-800'}`}
+                    className={`px-4 py-2 rounded-xl transition-all ${activeRightTab === 'report' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                   >
                     Report View
                   </button>
                   <button
                     onClick={() => setActiveRightTab('sources')}
-                    className={`px-4 py-2 rounded-xl transition-all ${activeRightTab === 'sources' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-800'}`}
+                    className={`px-4 py-2 rounded-xl transition-all ${activeRightTab === 'sources' ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                   >
                     Sources Panel
                   </button>
@@ -516,12 +516,12 @@ const handleLogout = () => {
           </div>
         )}
 
-        <button
+<button
           onClick={() => setTraceOpen((open) => !open)}
           className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold shadow-xl transition-all duration-200 border ${
             isStreaming
               ? 'bg-indigo-600 text-white border-indigo-500/50 hover:bg-indigo-500'
-              : 'bg-slate-900/95 text-slate-300 border-slate-700/60 hover:text-white hover:bg-slate-800'
+              : 'bg-white/95 dark:bg-slate-900/95 text-slate-700 dark:text-slate-300 border-gray-300 dark:border-slate-700/60 hover:text-slate-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
           }`}
         >
           <Activity className={`w-4 h-4 ${isStreaming ? 'animate-pulse text-white' : 'text-indigo-400'}`} />
@@ -530,43 +530,43 @@ const handleLogout = () => {
         </button>
       </div>
 
-      {mcpDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-stretch bg-slate-950/80 backdrop-blur-sm">
-          <div className="ml-auto w-full max-w-md border-l border-slate-800/80 bg-slate-950/95 shadow-2xl shadow-slate-950/40">
-            <div className="flex items-center justify-between border-b border-slate-800/80 px-6 py-4">
+{mcpDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex items-stretch bg-slate-500/50 dark:bg-slate-950/80 backdrop-blur-sm">
+          <div className="ml-auto w-full max-w-md border-l border-gray-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/95 shadow-2xl shadow-slate-950/40 transition-colors duration-200">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800/80 px-6 py-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.35em] text-indigo-300/70">MCP Connectivity</p>
-                <h3 className="text-lg font-semibold text-white">Server Connectivity Status</h3>
+                <p className="text-xs uppercase tracking-[0.35em] text-indigo-600 dark:text-indigo-300/70">MCP Connectivity</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Server Connectivity Status</h3>
               </div>
               <button
                 onClick={() => setMcpDrawerOpen(false)}
-                className="text-slate-400 hover:text-white rounded-lg p-2"
+                className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg p-2"
                 aria-label="Close MCP drawer"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-4 p-6 text-sm text-slate-300">
-              <div className="rounded-3xl border border-slate-800/80 bg-slate-900/80 p-5">
+            <div className="space-y-4 p-6 text-sm text-slate-700 dark:text-slate-300">
+              <div className="rounded-3xl border border-gray-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/80 p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-slate-100">MCP API Gateway</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">MCP API Gateway</p>
                   <span className="rounded-full bg-emerald-500/10 text-emerald-300 px-2 py-1 text-[11px]">Connected</span>
                 </div>
-                <p className="text-slate-400">Live command channel for remote agent orchestration and model coordination.</p>
+                <p className="text-slate-600 dark:text-slate-400">Live command channel for remote agent orchestration and model coordination.</p>
               </div>
-              <div className="rounded-3xl border border-slate-800/80 bg-slate-900/80 p-5">
+              <div className="rounded-3xl border border-gray-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/80 p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-slate-100">Playwright Browser Pool</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">Playwright Browser Pool</p>
                   <span className="rounded-full bg-amber-400/10 text-amber-300 px-2 py-1 text-[11px]">Warm</span>
                 </div>
-                <p className="text-slate-400">Headless browser workers are ready to scrape live sources for the current workspace.</p>
+                <p className="text-slate-600 dark:text-slate-400">Headless browser workers are ready to scrape live sources for the current workspace.</p>
               </div>
-              <div className="rounded-3xl border border-slate-800/80 bg-slate-900/80 p-5">
+              <div className="rounded-3xl border border-gray-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/80 p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-slate-100">Data Persistence</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">Data Persistence</p>
                   <span className="rounded-full bg-slate-700/80 text-slate-300 px-2 py-1 text-[11px]">Local</span>
                 </div>
-                <p className="text-slate-400">Research sessions and exported artifacts are stored in your browser so you can reload without losing context.</p>
+                <p className="text-slate-600 dark:text-slate-400">Research sessions and exported artifacts are stored in your browser so you can reload without losing context.</p>
               </div>
             </div>
           </div>

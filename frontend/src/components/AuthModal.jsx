@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, UserPlus, Key, ShieldCheck, Loader2, AlertCircle, LogIn, Sparkles } from 'lucide-react';
+import { X, Lock, User, Key, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 
 const TOKEN_STORAGE_KEY = 'deepfetch_access_token';
 
@@ -31,6 +31,7 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
         }
         accessToken = data.access_token;
       } else {
+        // Register first, then auto-login to obtain the JWT
         const regRes = await fetch('/api/v1/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -81,28 +82,18 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
   };
 
   const content = (
-    <div className="w-full max-w-md rounded-[32px] border border-slate-800/80 bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/40">
+    <div className="w-full max-w-md rounded-[32px] border border-gray-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/40 transition-colors duration-200">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-indigo-400/80">
-            {mode === 'login' ? 'Authentication' : 'Onboarding'}
-          </p>
-          <h2 className="text-2xl font-semibold text-white flex items-center gap-2">
-            {mode === 'login' ? (
-              <>
-                <LogIn className="w-6 h-6 text-indigo-400" /> Welcome Back — Sign In
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-6 h-6 text-emerald-400" /> Create Your Account — Get Started
-              </>
-            )}
+          <p className="text-xs uppercase tracking-[0.35em] text-indigo-600 dark:text-indigo-400/80">Secure workspace</p>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            {mode === 'login' ? 'Sign in to DeepFetch' : 'Create your account'}
           </h2>
         </div>
         {!fullscreen && (
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 hover:bg-slate-800/70 hover:text-white transition-all duration-200"
+            className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white transition-all duration-200"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -114,51 +105,45 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
         <button
           type="button"
           onClick={() => switchMode('login')}
-          className={`w-full rounded-3xl px-4 py-3 text-sm font-semibold tracking-wide transition duration-200 ${
+          className={`w-full rounded-3xl px-4 py-3 text-sm font-semibold transition duration-200 ${
             mode === 'login'
-              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-500/50'
-              : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800/80 border border-slate-800'
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+              : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800/80'
           }`}
         >
-          <div className="flex items-center justify-center gap-2">
-            <LogIn className="w-4 h-4" />
-            <span>Login with email</span>
-          </div>
+          Login with email
         </button>
         <button
           type="button"
           onClick={() => switchMode('signup')}
-          className={`w-full rounded-3xl px-4 py-3 text-sm font-semibold tracking-wide transition duration-200 ${
+          className={`w-full rounded-3xl px-4 py-3 text-sm font-semibold transition duration-200 ${
             mode === 'signup'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-500/50'
-              : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800/80 border border-slate-800'
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+              : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800/80'
           }`}
         >
-          <div className="flex items-center justify-center gap-2">
-            <UserPlus className="w-4 h-4" />
-            <span>Create new account</span>
-          </div>
+          Create new account
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <label className="block text-sm text-slate-300">
-          <span className="flex items-center gap-2 mb-2 font-medium text-slate-200">
-            <Mail className="w-4 h-4 text-indigo-400" /> Email address
+        <label className="block text-sm text-slate-700 dark:text-slate-300">
+          <span className="flex items-center gap-2 mb-2 font-medium text-slate-800 dark:text-slate-200">
+            <Key className="w-4 h-4 text-indigo-500 dark:text-indigo-400" /> Email address
           </span>
           <input
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             type="email"
             placeholder="you@deepfetch.ai"
-            className="w-full rounded-3xl border border-slate-800/80 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none focus:border-indigo-500"
+            className="w-full rounded-3xl border border-gray-300 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/80 px-4 py-3 text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500"
             required
           />
         </label>
 
-        <label className="block text-sm text-slate-300">
-          <span className="flex items-center gap-2 mb-2 font-medium text-slate-200">
-            <Lock className="w-4 h-4 text-indigo-400" /> Password
+        <label className="block text-sm text-slate-700 dark:text-slate-300">
+          <span className="flex items-center gap-2 mb-2 font-medium text-slate-800 dark:text-slate-200">
+            <Lock className="w-4 h-4 text-indigo-500 dark:text-indigo-400" /> Password
           </span>
           <input
             value={password}
@@ -166,13 +151,13 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
             type="password"
             placeholder="••••••••"
             minLength={8}
-            className="w-full rounded-3xl border border-slate-800/80 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none focus:border-indigo-500"
+            className="w-full rounded-3xl border border-gray-300 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/80 px-4 py-3 text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500"
             required
           />
         </label>
 
         {error && (
-          <div className="flex items-start gap-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+          <div className="flex items-start gap-2 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-500 dark:text-rose-300">
             <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>{error}</span>
           </div>
@@ -181,24 +166,16 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
         <button
           type="submit"
           disabled={loading}
-          className={`w-full inline-flex items-center justify-center gap-2 rounded-3xl px-4 py-3 text-sm font-semibold text-white shadow-lg transition duration-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${
-            mode === 'login'
-              ? 'bg-indigo-600 shadow-indigo-500/20 hover:bg-indigo-500'
-              : 'bg-emerald-600 shadow-emerald-500/20 hover:bg-emerald-500'
-          }`}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-3xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition duration-200 hover:bg-indigo-500 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {mode === 'login' ? (
-            <><LogIn className="w-4 h-4" /> Sign In</>
-          ) : (
-            <><Sparkles className="w-4 h-4" /> Create Account</>
-          )}
+          {mode === 'login' ? 'Sign In' : 'Create Account'}
         </button>
       </form>
 
-      <div className="mt-6 text-center text-xs text-slate-500">
+      <div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-500">
         <p>
-          <ShieldCheck className="inline w-3.5 h-3.5 mr-1 text-indigo-400" />
+          <ShieldCheck className="inline w-3.5 h-3.5 mr-1 text-indigo-500 dark:text-indigo-400" />
           By continuing, you authenticate with the DeepFetch backend. Your JWT session is stored locally.
         </p>
       </div>
@@ -207,7 +184,7 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
 
   if (fullscreen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-sm p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-500/50 dark:bg-slate-950/95 backdrop-blur-sm p-4">
         {content}
       </div>
     );
@@ -216,7 +193,7 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-500/50 dark:bg-slate-950/80 backdrop-blur-sm p-4">
       {content}
     </div>
   );

@@ -32,13 +32,13 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
 
   return (
     <div className="w-full glass-panel rounded-2xl p-4 shadow-xl space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+<div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
         <div className="flex items-center space-x-2.5">
-          <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+          <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500 dark:text-indigo-400">
             <Cpu className="w-4 h-4 animate-pulse" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-100">Live Agent Execution Trace</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Live Agent Execution Trace</h3>
             <p className="text-[10px] text-slate-500">LangGraph Real-time SSE Workflow</p>
           </div>
         </div>
@@ -61,20 +61,20 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
               key={node.id}
               className={`p-2 rounded-lg border transition-all duration-300 ${
                 state === 'active'
-                  ? 'bg-indigo-950/40 border-indigo-500/60'
+                  ? 'bg-indigo-100 dark:bg-indigo-950/40 border-indigo-500/60'
                   : state === 'completed'
-                  ? 'bg-slate-900/60 border-emerald-500/30'
-                  : 'bg-slate-900/30 border-slate-800 opacity-60'
+                  ? 'bg-slate-100 dark:bg-slate-900/60 border-emerald-500/30'
+                  : 'bg-slate-50 dark:bg-slate-900/30 border-gray-200 dark:border-slate-800 opacity-60'
               }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <div className={`p-1.5 rounded-md ${state === 'active' ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                <div className={`p-1.5 rounded-md ${state === 'active' ? 'bg-indigo-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
                   <Icon className="w-3.5 h-3.5" />
                 </div>
                 {state === 'completed' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                 {state === 'active' && <Loader2 className="w-3.5 h-3.5 text-indigo-400 animate-spin" />}
               </div>
-              <h4 className="text-[11px] font-semibold text-slate-200 truncate">{node.label}</h4>
+              <h4 className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 truncate">{node.label}</h4>
             </div>
           );
         })}
@@ -82,13 +82,13 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
 
       {/* Sub-queries Section */}
       {subQueries.length > 0 && (
-        <div className="rounded-lg p-3 border border-indigo-500/20 bg-slate-950/40">
-          <h4 className="text-[10px] font-semibold text-indigo-400 uppercase tracking-wider mb-1.5 flex items-center">
+        <div className="rounded-lg p-3 border border-indigo-500/20 bg-slate-50 dark:bg-slate-950/40 transition-colors duration-200">
+          <h4 className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1.5 flex items-center">
             <Layers className="w-3 h-3 mr-1" /> Sub-Queries
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {subQueries.map((sq, i) => (
-              <span key={i} className="text-[10px] bg-indigo-950/80 text-indigo-200 border border-indigo-700/50 px-2 py-1 rounded-md">
+              <span key={i} className="text-[10px] bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700/50 px-2 py-1 rounded-md">
                 {i + 1}. {sq}
               </span>
             ))}
@@ -97,25 +97,25 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
       )}
 
       {/* Live Log Terminal */}
-      <div className="rounded-lg p-3 border border-slate-700/50 bg-slate-950/70">
-        <div className="flex items-center justify-between mb-2 border-b border-slate-800 pb-1.5">
-          <div className="flex items-center space-x-1.5 text-[10px] text-slate-400 font-mono">
+      <div className="rounded-lg p-3 border border-black/10 bg-white/80 dark:border-slate-700/50 dark:bg-slate-950/70 transition-colors duration-200">
+        <div className="flex items-center justify-between mb-2 border-b border-gray-200 dark:border-slate-800 pb-1.5">
+          <div className="flex items-center space-x-1.5 text-[10px] text-slate-500 dark:text-slate-400 font-mono">
             <Terminal className="w-3.5 h-3.5 text-emerald-400" />
             <span>Execution Log</span>
           </div>
-          <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono">
+          <span className="text-[9px] bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded font-mono">
             {logs.length} events
           </span>
         </div>
 
-        <div className="h-40 overflow-y-auto font-mono text-[11px] text-slate-300 space-y-1 pr-1 terminal-scrollbar">
+        <div className="h-40 overflow-y-auto font-mono text-[11px] text-slate-800 dark:text-slate-300 space-y-1 pr-1 terminal-scrollbar">
           {logs.length === 0 ? (
-            <p className="text-slate-500 italic">Waiting for search request invocation...</p>
+            <p className="text-slate-400 dark:text-slate-500 italic">Waiting for search request invocation...</p>
           ) : (
             logs.map((log, index) => (
               <div key={index} className="flex items-start space-x-1.5 leading-relaxed">
-<span className="text-indigo-400 font-bold select-none">{'>'}</span>
-                <span className={log.includes('APPROVED') ? 'text-emerald-400 font-semibold' : log.includes('REJECTED') ? 'text-amber-400' : ''}>
+<span className="text-indigo-500 dark:text-indigo-400 font-bold select-none">{'>'}</span>
+                <span className={log.includes('APPROVED') ? 'text-emerald-500 dark:text-emerald-400 font-semibold' : log.includes('REJECTED') ? 'text-amber-500 dark:text-amber-400' : ''}>
                   {log}
                 </span>
               </div>

@@ -89,7 +89,7 @@ export default function Sidebar({
   const renderHistoryGroup = (title, items) => {
     if (!items || items.length === 0) return null;
     return (
-      <div className="space-y-1.5 mb-4">
+<div className="space-y-1.5 mb-4">
         <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
           <Clock className="w-3 h-3 text-slate-400" />
           <span>{title}</span>
@@ -102,12 +102,12 @@ export default function Sidebar({
               onClick={() => onSelectHistory(item)}
               className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all duration-200 ${
                 isActive
-                  ? 'bg-indigo-600/20 text-indigo-200 border border-indigo-500/40 shadow-sm'
-                  : 'text-slate-300 hover:bg-slate-800/60 hover:text-white border border-transparent'
+                  ? 'bg-indigo-600/20 text-indigo-700 dark:text-indigo-200 border border-indigo-500/40 shadow-sm'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white border border-transparent'
               }`}
             >
               <div className="flex items-center space-x-2.5 truncate pr-6">
-                <FileText className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'}`} />
+                <FileText className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-indigo-400'}`} />
                 <span className="truncate">{item.query}</span>
               </div>
 
@@ -128,32 +128,32 @@ export default function Sidebar({
     );
   };
 
-  return (
+return (
     <aside
-      className={`fixed top-0 left-0 bottom-0 z-40 bg-slate-950/90 border-r border-slate-800/50 transition-all duration-300 flex flex-col justify-between ${
+      className={`fixed top-0 left-0 bottom-0 z-40 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 transition-all duration-300 flex flex-col justify-between ${
         isOpen ? 'w-72' : 'w-20'
       }`}
     >
       {/* Top Header */}
-      <div className="p-4 border-b border-slate-800/80 space-y-4">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800/80 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 overflow-hidden">
             <div className="p-2 bg-indigo-600/15 rounded-xl shadow-[0_10px_30px_rgba(79,70,229,0.16)] flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-indigo-300" />
+              <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-300" />
             </div>
             {isOpen && (
               <div className="truncate">
-                <h1 className="text-base font-bold text-white tracking-tight leading-none flex items-center gap-1.5">
-                  DeepFetch <span className="text-indigo-400 font-extrabold">AI</span>
+                <h1 className="text-base font-bold text-slate-900 dark:text-white tracking-tight leading-none flex items-center gap-1.5">
+                  DeepFetch <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">AI</span>
                 </h1>
-                <span className="text-[10px] text-slate-400 font-mono tracking-wider">SaaS Workspace</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono tracking-wider">SaaS Workspace</span>
               </div>
             )}
           </div>
 
           <button
             onClick={onToggle}
-            className="p-1.5 text-slate-400 hover:text-white bg-slate-900/90 hover:bg-slate-800 rounded-xl border border-slate-800/60 transition-all"
+            className="p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-gray-100 dark:bg-slate-900/90 dark:hover:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-800/60 transition-colors duration-200"
             title={isOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
           >
             {isOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
@@ -178,13 +178,13 @@ export default function Sidebar({
         {isOpen ? (
           <>
             {/* Tabs for History vs Exported Workspace */}
-            <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800 mb-4 text-xs font-medium">
+<div className="flex bg-slate-100 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200 dark:border-slate-800 mb-4 text-xs font-medium">
               <button
                 onClick={() => setActiveTab('history')}
                 className={`flex-1 py-1.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all ${
                   activeTab === 'history'
                     ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <History className="w-3.5 h-3.5" />
@@ -196,7 +196,7 @@ export default function Sidebar({
                 className={`flex-1 py-1.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all ${
                   activeTab === 'exports'
                     ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Download className="w-3.5 h-3.5" />
@@ -211,7 +211,7 @@ export default function Sidebar({
                   <div className="p-6 text-center text-slate-500 text-xs">
                     <Database className="w-8 h-8 mx-auto mb-2 opacity-40" />
                     <p>No research history yet.</p>
-                    <p className="text-[11px] mt-1 text-slate-600">Submit a query to generate sessions.</p>
+                    <p className="text-[11px] mt-1 text-slate-400 dark:text-slate-600">Submit a query to generate sessions.</p>
                   </div>
                 ) : (
                   <>
@@ -231,34 +231,34 @@ export default function Sidebar({
                   <div className="p-6 text-center text-slate-500 text-xs">
                     <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
                     <p>No saved reports found.</p>
-                    <p className="text-[11px] mt-1 text-slate-600">Completed reports will appear here for instant download.</p>
+                    <p className="text-[11px] mt-1 text-slate-400 dark:text-slate-600">Completed reports will appear here for instant download.</p>
                   </div>
                 ) : (
                   reportsList.map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 bg-slate-900/60 hover:bg-slate-800/80 rounded-xl border border-slate-800/80 space-y-2 transition-all"
+                      className="p-3 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2 transition-all"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-xs font-semibold text-slate-200 line-clamp-1">{item.query}</h4>
-                        <span className="text-[10px] font-mono text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-800/50">
+                        <h4 className="text-xs font-semibold text-slate-800 dark:text-slate-200 line-clamp-1">{item.query}</h4>
+                        <span className="text-[10px] font-mono text-indigo-500 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-300 dark:border-indigo-800/50">
                           MD
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 line-clamp-1 font-mono">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 font-mono">
                         {new Date(item.timestamp).toLocaleDateString()}
                       </p>
-                      <div className="flex items-center gap-2 pt-1 border-t border-slate-800/60">
+                      <div className="flex items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800/60">
                         <button
                           onClick={(e) => handleDownloadReport(e, item, 'md')}
-                          className="flex-1 py-1 px-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[11px] font-medium flex items-center justify-center space-x-1 transition-all"
+                          className="flex-1 py-1 px-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-medium flex items-center justify-center space-x-1 transition-all"
                         >
                           <Download className="w-3 h-3" />
                           <span>Markdown</span>
                         </button>
                         <button
                           onClick={(e) => handleDownloadReport(e, item, 'json')}
-                          className="flex-1 py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium flex items-center justify-center space-x-1 transition-all"
+                          className="flex-1 py-1 px-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-medium flex items-center justify-center space-x-1 transition-all"
                         >
                           <FileText className="w-3 h-3" />
                           <span>JSON</span>
@@ -272,11 +272,11 @@ export default function Sidebar({
           </>
         ) : (
           /* Collapsed Icon Bar */
-          <div className="flex flex-col items-center space-y-4">
+<div className="flex flex-col items-center space-y-4">
             <button
               onClick={() => setActiveTab('history')}
               className={`p-3 rounded-xl transition-all ${
-                activeTab === 'history' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/40' : 'text-slate-400 hover:text-white'
+                activeTab === 'history' ? 'bg-indigo-600/20 text-indigo-500 dark:text-indigo-400 border border-indigo-500/40' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
               title="History"
             >
@@ -286,7 +286,7 @@ export default function Sidebar({
             <button
               onClick={() => setActiveTab('exports')}
               className={`p-3 rounded-xl transition-all ${
-                activeTab === 'exports' ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/40' : 'text-slate-400 hover:text-white'
+                activeTab === 'exports' ? 'bg-indigo-600/20 text-indigo-500 dark:text-indigo-400 border border-indigo-500/40' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
               title="Saved Reports"
             >
@@ -297,17 +297,17 @@ export default function Sidebar({
       </div>
 
       {/* User Profile & Account Footer */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-950/60">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/60">
         {user ? (
-          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
             <div className="flex items-center space-x-2.5 truncate">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-xs flex items-center justify-center shadow-md">
                 {user.name ? user.name.slice(0, 2).toUpperCase() : 'US'}
               </div>
               {isOpen && (
                 <div className="truncate">
-                  <p className="text-xs font-semibold text-slate-200 truncate">{user.name || 'Pro User'}</p>
-                  <p className="text-[10px] text-slate-400 truncate">{user.email || 'user@deepfetch.ai'}</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{user.name || 'Pro User'}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.email || 'user@deepfetch.ai'}</p>
                 </div>
               )}
             </div>
@@ -316,14 +316,14 @@ export default function Sidebar({
               <div className="flex items-center space-x-1">
                 <button
                   onClick={onOpenSettings}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+                  className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                   title="Account Settings"
                 >
                   <Settings className="w-4 h-4" />
                 </button>
                 <button
                   onClick={onLogout}
-                  className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition-colors"
+                  className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -334,11 +334,11 @@ export default function Sidebar({
         ) : (
           <button
             onClick={onOpenAuth}
-            className={`w-full flex items-center justify-center space-x-2 p-2.5 rounded-xl text-xs font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 transition-all ${
+            className={`w-full flex items-center justify-center space-x-2 p-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 transition-colors duration-200 ${
               isOpen ? 'justify-start' : 'justify-center'
             }`}
           >
-            <LogIn className="w-4 h-4 text-indigo-400" />
+            <LogIn className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
             {isOpen && <span>Sign In / Register</span>}
           </button>
         )}
