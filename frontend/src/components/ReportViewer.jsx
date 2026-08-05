@@ -34,7 +34,7 @@ if (!report) {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-8 shadow-2xl space-y-6">
+<div className="rounded-2xl p-8 shadow-2xl space-y-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f1420] transition-colors duration-200">
 {/* Header & Actions */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-gray-200 dark:border-slate-800 pb-6">
         <div className="flex items-center space-x-3">
@@ -84,7 +84,7 @@ if (!report) {
       </div>
 
       {/* Rendered Markdown Body */}
-      <div className="bg-slate-50 dark:bg-slate-950/60 rounded-xl p-6 border border-gray-200 dark:border-slate-800/80 transition-colors duration-200">
+<div className="bg-slate-50 dark:bg-[#131a29] rounded-xl p-6 border border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div
           className="markdown-body text-slate-800 dark:text-slate-200 leading-relaxed space-y-4"
           dangerouslySetInnerHTML={{ __html: parsedHtml }}

@@ -31,7 +31,7 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
   };
 
   return (
-    <div className="w-full glass-panel rounded-2xl p-4 shadow-xl space-y-4">
+<div className="w-full rounded-2xl p-4 shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f1420] space-y-4 transition-colors duration-200">
 <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
         <div className="flex items-center space-x-2.5">
           <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500 dark:text-indigo-400">
@@ -97,7 +97,7 @@ export default function AgentTraceViewer({ activeNode, logs, subQueries, criticV
       )}
 
       {/* Live Log Terminal */}
-      <div className="rounded-lg p-3 border border-black/10 bg-white/80 dark:border-slate-700/50 dark:bg-slate-950/70 transition-colors duration-200">
+<div className="rounded-lg p-3 border border-slate-200 bg-slate-50 dark:border-slate-700/50 dark:bg-[#131a29] transition-colors duration-200">
         <div className="flex items-center justify-between mb-2 border-b border-gray-200 dark:border-slate-800 pb-1.5">
           <div className="flex items-center space-x-1.5 text-[10px] text-slate-500 dark:text-slate-400 font-mono">
             <Terminal className="w-3.5 h-3.5 text-emerald-400" />

@@ -4,7 +4,7 @@ import { ExternalLink, Database, Globe, CheckCircle, ShieldCheck } from 'lucide-
 export default function SourceCitationDashboard({ sources }) {
 if (!sources || sources.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-12 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-950/80 transition-colors duration-200">
+<div className="rounded-2xl p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f1420] transition-colors duration-200">
         <Database className="w-12 h-12 mx-auto mb-4 text-slate-400 dark:text-slate-500 animate-bounce" />
         <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">No Web Sources Scraped Yet</h3>
         <p className="text-sm mt-1">Submit a research query to initiate Playwright headless browser scraping.</p>
@@ -26,7 +26,7 @@ if (!sources || sources.length === 0) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sources.map((source, index) => (
-          <div key={index} className="glass-panel rounded-xl p-5 hover:border-indigo-500/40 transition-all flex flex-col justify-between space-y-3">
+<div key={index} className="rounded-xl p-5 hover:border-indigo-500/40 transition-all flex flex-col justify-between space-y-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131a29]">
             <div>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <span className="text-[10px] font-mono font-semibold uppercase bg-slate-200 dark:bg-slate-800 text-indigo-600 dark:text-indigo-300 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded">

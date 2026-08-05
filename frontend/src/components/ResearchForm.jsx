@@ -31,8 +31,8 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="relative group">
-        <div className="absolute -inset-1 bg-slate-700/30 rounded-3xl blur opacity-60 transition duration-500"></div>
-        <div className="relative glass-panel rounded-[28px] p-4 md:p-5 shadow-xl border border-slate-200 dark:border-slate-800/50 transition-colors duration-200">
+<div className="absolute -inset-1 bg-slate-700/30 rounded-3xl blur opacity-60 transition duration-500"></div>
+        <div className="relative rounded-[28px] p-4 md:p-5 shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131a29] transition-colors duration-200">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="flex items-center gap-3 md:w-1/3">
               <div className="p-3 rounded-3xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-300">
@@ -45,7 +45,7 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
             </div>
             <div className="flex-1">
               <div
-                className={`w-full rounded-[16px] border-2 ${isDragActive ? 'border-indigo-500 bg-indigo-50 dark:bg-slate-900/60' : 'border-slate-300 dark:border-slate-800/60 bg-white dark:bg-slate-950/80'} px-4 py-3 transition`}
+className={`w-full rounded-[16px] border-2 ${isDragActive ? 'border-indigo-500 bg-indigo-50 dark:bg-[#182030]/60' : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-[#131a29]'} px-4 py-3 transition`}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setIsDragActive(true);
@@ -154,7 +154,7 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-900/70 px-3 py-2 text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400">
+<span className="inline-flex items-center gap-2 rounded-full bg-slate-100 dark:bg-[#182030] px-3 py-2 text-xs uppercase tracking-widest text-slate-700 dark:text-slate-300">
           <Globe className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" /> Suggestions
         </span>
         {PRESET_QUERIES.map((preset, idx) => (
@@ -162,7 +162,7 @@ export default function ResearchForm({ onSubmit, isStreaming, initialQuery = '' 
             key={idx}
             onClick={() => handleSelectPreset(preset)}
             disabled={isStreaming}
-            className="rounded-full border border-slate-300 dark:border-slate-800/70 bg-white dark:bg-slate-900/80 px-4 py-2 text-xs text-slate-600 dark:text-slate-300 transition hover:border-indigo-500/60 hover:text-indigo-600 dark:hover:text-indigo-200"
+className="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#182030] px-4 py-2 text-xs text-slate-700 dark:text-slate-300 transition hover:border-indigo-500/60 hover:text-indigo-600 dark:hover:text-indigo-200"
           >
             {preset}
           </button>

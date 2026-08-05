@@ -129,13 +129,13 @@ export default function Sidebar({
   };
 
 return (
-    <aside
-      className={`fixed top-0 left-0 bottom-0 z-40 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 transition-all duration-300 flex flex-col justify-between ${
+<aside
+      className={`fixed top-0 left-0 bottom-0 z-40 bg-white dark:bg-[#0f1420] border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 transition-all duration-300 flex flex-col justify-between ${
         isOpen ? 'w-72' : 'w-20'
       }`}
     >
       {/* Top Header */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800/80 space-y-4">
+<div className="p-4 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0f1420] space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 overflow-hidden">
             <div className="p-2 bg-indigo-600/15 rounded-xl shadow-[0_10px_30px_rgba(79,70,229,0.16)] flex-shrink-0">
@@ -297,7 +297,7 @@ return (
       </div>
 
       {/* User Profile & Account Footer */}
-      <div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/60">
+<div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#0f1420]/60">
         {user ? (
           <div className="flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
             <div className="flex items-center space-x-2.5 truncate">

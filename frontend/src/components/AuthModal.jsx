@@ -82,7 +82,7 @@ export default function AuthModal({ isOpen, onClose, onAuthenticated, fullscreen
   };
 
   const content = (
-    <div className="w-full max-w-md rounded-[32px] border border-gray-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/40 transition-colors duration-200">
+<div className="w-full max-w-md rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f1420] p-6 shadow-2xl shadow-slate-950/40 transition-colors duration-200">
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-xs uppercase tracking-[0.35em] text-indigo-600 dark:text-indigo-400/80">Secure workspace</p>

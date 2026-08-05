@@ -45,7 +45,7 @@ return (
   };
 
 return (
-    <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-950/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800/60 px-6 py-3 transition-colors duration-200">
+    <header className="sticky top-0 z-30 bg-white/80 dark:bg-[#0f1420]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 py-3 transition-colors duration-200">
       <div className="flex items-center justify-between gap-3">
         {/* Left Side: Collapse Toggle & Breadcrumb */}
         <div className="flex items-center space-x-4">

@@ -6,7 +6,7 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }) 
 
 return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-500/50 dark:bg-slate-950/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-[32px] border border-gray-200 dark:border-slate-800/80 bg-white dark:bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/40 transition-colors duration-200">
+<div className="w-full max-w-md rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f1420] p-6 shadow-2xl shadow-slate-950/40 transition-colors duration-200">
         <div className="flex items-center justify-between mb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.35em] text-rose-600 dark:text-rose-400/80">Sign Out</p>

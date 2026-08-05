@@ -359,7 +359,7 @@ const handleLogout = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors duration-200">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#080b11] text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors duration-200">
         <AuthModal
           isOpen={true}
           onClose={() => {}}
@@ -371,7 +371,7 @@ const handleLogout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#080b11] text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Navbar
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((open) => !open)}
@@ -402,7 +402,7 @@ const handleLogout = () => {
         <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
 {/* Slim Stats Bar */}
           {hasActiveWorkspace && (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/60 bg-slate-50 dark:bg-slate-900/50 px-4 py-2 text-xs text-slate-600 dark:text-slate-400 transition-colors duration-200">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-[#131a29]/50 px-4 py-2 text-xs text-slate-600 dark:text-slate-400 transition-colors duration-200">
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 text-indigo-400" />
@@ -447,7 +447,7 @@ const handleLogout = () => {
                 </p>
                 <div className="mt-8 grid gap-3 sm:grid-cols-2 max-w-lg mx-auto">
                   {['Multi-agent orchestration', 'Playwright live source scraping', 'Critic-verified synthesis', 'Export Markdown / JSON'].map((item) => (
-                    <div key={item} className="rounded-2xl border border-slate-300 dark:border-slate-800/70 bg-white dark:bg-slate-950/80 p-4 text-left text-sm text-slate-700 dark:text-slate-300 transition-colors duration-200">
+                    <div key={item} className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-[#131a29] p-4 text-left text-sm text-slate-700 dark:text-slate-300 transition-colors duration-200">
                       <div className="flex items-center gap-2">
                         <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-400" />
                         {item}
@@ -458,7 +458,7 @@ const handleLogout = () => {
               </div>
             </section>
           ) : (
-            <section className="glass-panel rounded-[28px] border border-slate-800/70 p-4 shadow-2xl">
+            <section className="glass-panel rounded-[28px] border border-slate-200 dark:border-slate-800/70 p-4 shadow-2xl">
               {/* Report / Sources toggle */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2 py-2">
                 <div>
