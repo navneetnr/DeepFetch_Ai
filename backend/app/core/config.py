@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     GROQ_API_KEY: Optional[str] = None
     GROQ_MODEL: str = "llama-3.1-70b-versatile"
     TAVILY_API_KEY: Optional[str] = None
+    SECRET_KEY: str = "change-me-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
+    DATABASE_URL: str = "sqlite:///./deepfetch.db"
 
     # Storage & Cache
     QDRANT_HOST: str = "localhost"

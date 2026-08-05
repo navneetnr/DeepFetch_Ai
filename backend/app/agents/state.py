@@ -17,3 +17,4 @@ class ResearchState(TypedDict):
     file_context: Optional[str]
     # Search mode: 'live' | 'document' | 'hybrid'
     search_mode: Optional[str]
+    user_id: Optional[int]

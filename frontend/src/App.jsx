@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { Cpu, Globe, FileText, Sparkles, Activity, Github, ArrowRight, Server, ChevronRight } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -9,7 +10,7 @@ import ReportViewer from './components/ReportViewer';
 import AuthModal from './components/AuthModal';
 import SettingsModal from './components/SettingsModal';
 
-const SESSION_STORAGE_KEY = 'deepfetch_workspace_sessions';
+const TOKEN_STORAGE_KEY = 'deepfetch_access_token';
 const USER_STORAGE_KEY = 'deepfetch_workspace_user';
 
 export default function App() {
@@ -24,24 +25,19 @@ export default function App() {
   const [logs, setLogs] = useState([]);
   const [subQueries, setSubQueries] = useState([]);
   const [scrapedSources, setScrapedSources] = useState([]);
-  const [activeNode, setActiveNode] = useState('planner');
+const [activeNode, setActiveNode] = useState('planner');
   const [criticVerdict, setCriticVerdict] = useState('');
   const [report, setReport] = useState('');
   const [backendHealth, setBackendHealth] = useState('checking');
   const [history, setHistory] = useState([]);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) || null);
+
+  const isAuthenticated = !!token;
 
   useEffect(() => {
-    const storedHistory = localStorage.getItem(SESSION_STORAGE_KEY);
     const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-    if (storedHistory) {
-      try {
-        setHistory(JSON.parse(storedHistory));
-      } catch {
-        setHistory([]);
-      }
-    }
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
@@ -52,16 +48,71 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(history));
-  }, [history]);
-
-  useEffect(() => {
     if (user) {
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
     } else {
       localStorage.removeItem(USER_STORAGE_KEY);
     }
   }, [user]);
+
+  // Verify and fetch profile updates if token is present
+  useEffect(() => {
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    fetch('/api/v1/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Profile request failed with HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        const displayName = data.email.split('@')[0].replace(/[._-]+/g, ' ');
+        setUser({
+          name: displayName || 'Deep Researcher',
+          email: data.email,
+        });
+      })
+      .catch((err) => {
+        console.warn('Invalid access token or profile fetch failed:', err);
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
+      });
+  }, [token]);
+
+  // Fetch backend research history when authenticated
+  useEffect(() => {
+    if (!token) return;
+    fetch('/api/v1/research/history', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`History request failed with HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((items) => {
+        const mapped = (items || []).map((item) => ({
+          id: `backend-${item.id}`,
+          query: item.query,
+          timestamp: new Date(item.created_at).getTime(),
+          report: item.report_markdown || '',
+          scrapedSources: item.sources || [],
+          logs: [],
+          subQueries: [],
+          criticVerdict: '',
+          activeNode: 'planner',
+          status: 'completed',
+        }));
+        setHistory(mapped);
+      })
+      .catch((err) => {
+        console.warn('Failed to load backend research history:', err);
+      });
+  }, [token]);
 
   useEffect(() => {
     fetch('/health')
@@ -106,6 +157,9 @@ export default function App() {
 
       const response = await fetch('/api/v1/research/stream', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
 
@@ -203,6 +257,9 @@ export default function App() {
 
         const fallbackRes = await fetch('/api/v1/research/execute', {
           method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
           body: fallbackForm,
         });
         const fallbackData = await fallbackRes.json();
@@ -271,14 +328,31 @@ export default function App() {
   };
 
   const handleAuthSuccess = (account) => {
-    setUser(account);
+    setToken(account.token);
+    setUser(account.user);
     setAuthOpen(false);
   };
 
   const handleLogout = () => {
+    setToken(null);
     setUser(null);
     setSettingsOpen(false);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(USER_STORAGE_KEY);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 bg-slate-radial flex items-center justify-center p-4">
+        <AuthModal
+          isOpen={true}
+          onClose={() => {}}
+          onAuthenticated={handleAuthSuccess}
+          fullscreen={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 bg-slate-radial">
@@ -489,7 +563,7 @@ export default function App() {
         </div>
       )}
 
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} onAuthenticate={handleAuthSuccess} />
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={handleAuthSuccess} />
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} user={user} onLogout={handleLogout} />
     </div>
   );

@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import logger
+from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.research import router as research_router
+from app.db.database import Base, engine
+from app.db import models  # noqa: F401
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -22,8 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize local database tables
+Base.metadata.create_all(bind=engine)
+
 # Include API Routers
 app.include_router(health_router)
+app.include_router(auth_router)
 app.include_router(research_router)
 
 
