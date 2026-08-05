@@ -18,13 +18,13 @@ Make the theme toggle apply across the ENTIRE app (not just search bar) by addin
 
 ## Status Tracking
 - [x] ThemeContext global state
-- [ ] App.jsx root wrappers
-- [ ] Sidebar
-- [ ] Navbar cleanup
-- [ ] ReportViewer
-- [ ] AgentTraceViewer
-- [ ] SourceCitationDashboard
-- [ ] Modals (Settings, Logout, Auth)
-- [ ] ResearchForm
-- [ ] index.css markdown/code/tables
-- [ ] Build & commit
+- [x] App.jsx root wrappers
+- [x] Sidebar
+- [x] Navbar cleanup
+- [x] ReportViewer
+- [x] AgentTraceViewer
+- [x] SourceCitationDashboard
+- [x] Modals (Settings, Logout, Auth)
+- [x] ResearchForm
+- [x] index.css markdown/code/tables
+- [x] Build & commit
