@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Cpu, Globe, FileText, Sparkles, Activity, Github, ArrowRight, Server, ChevronRight } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -84,8 +84,8 @@ const [activeNode, setActiveNode] = useState('planner');
       });
   }, [token]);
 
-  // Fetch backend research history when authenticated
-  useEffect(() => {
+// Fetch backend research history when authenticated
+  const refreshHistory = useCallback(() => {
     if (!token) return;
     fetch('/api/v1/research/history', {
       headers: { Authorization: `Bearer ${token}` },
@@ -113,6 +113,10 @@ const [activeNode, setActiveNode] = useState('planner');
         console.warn('Failed to load backend research history:', err);
       });
   }, [token]);
+
+  useEffect(() => {
+    refreshHistory();
+  }, [token, refreshHistory]);
 
   useEffect(() => {
     fetch('/health')
@@ -240,11 +244,12 @@ const [activeNode, setActiveNode] = useState('planner');
         scrapedSources: collectedSources,
         subQueries: latestSubQueries,
         criticVerdict: latestCritic,
-        activeNode: latestNode,
+activeNode: latestNode,
         status: 'completed',
       };
 
       saveSession(session);
+      refreshHistory();
     } catch (error) {
       console.warn('SSE Stream interrupted, attempting fallback execute endpoint:', error);
       setLogs((prev) => [...prev, `[System Warning] SSE stream interrupted: ${error.message}. Invoking direct fallback execution...`]);
@@ -278,7 +283,7 @@ const [activeNode, setActiveNode] = useState('planner');
           id: sessionId,
           query,
           timestamp: Date.now(),
-          logs: [...logs, ...fallbackLogs],
+logs: [...logs, ...fallbackLogs],
           report: fallbackReport,
           scrapedSources: fallbackSources,
           subQueries,
@@ -286,6 +291,7 @@ const [activeNode, setActiveNode] = useState('planner');
           activeNode,
           status: 'completed',
         });
+        refreshHistory();
       } catch (fbErr) {
         setLogs((prev) => [...prev, `[System Error] Execution failed: ${fbErr.message}`]);
       }
@@ -307,7 +313,7 @@ const [activeNode, setActiveNode] = useState('planner');
     setActiveHistoryId(null);
   };
 
-  const handleLoadHistory = (item) => {
+const handleLoadHistory = (item) => {
     setActiveHistoryId(item.id);
     setCurrentQuery(item.query);
     setLogs(item.logs || []);
@@ -318,6 +324,7 @@ const [activeNode, setActiveNode] = useState('planner');
     setReport(item.report || '');
     setActiveTab(item.report ? 'report' : 'trace');
     setActiveRightTab('report');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteHistory = (id) => {
