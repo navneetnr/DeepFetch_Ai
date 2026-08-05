@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import ResearchForm from './components/ResearchForm';
@@ -9,6 +9,23 @@ import LogoutConfirmationModal from './components/LogoutConfirmationModal';
 
 const TOKEN_STORAGE_KEY = 'deepfetch_access_token';
 const USER_STORAGE_KEY = 'deepfetch_workspace_user';
+const ACTIVE_SESSION_KEY = 'deepfetch_active_session_id';
+const SESSION_ID_PARAM = 'session_id';
+
+function getSessionIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(SESSION_ID_PARAM);
+}
+
+function setSessionIdInUrl(sessionId) {
+  const url = new URL(window.location.href);
+  if (sessionId) {
+    url.searchParams.set(SESSION_ID_PARAM, sessionId);
+  } else {
+    url.searchParams.delete(SESSION_ID_PARAM);
+  }
+  window.history.replaceState({}, '', url.toString());
+}
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -22,8 +39,11 @@ export default function App() {
   const [report, setReport] = useState('');
   const [history, setHistory] = useState([]);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
-  const [user, setUser] = useState(null);
+const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) || null);
+
+  const historyRef = useRef(history);
+  historyRef.current = history;
 
   const isAuthenticated = !!token;
 
@@ -105,17 +125,50 @@ export default function App() {
       });
   }, [token]);
 
-  useEffect(() => {
+useEffect(() => {
     refreshHistory();
   }, [token, refreshHistory]);
+
+  // Restore active session from URL or localStorage after history loads
+  useEffect(() => {
+    if (!history.length) return;
+    const urlSessionId = getSessionIdFromUrl() || localStorage.getItem(ACTIVE_SESSION_KEY);
+    if (!urlSessionId) return;
+    const match = history.find((item) => item.id === urlSessionId);
+    if (match) {
+      handleLoadHistory(match);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history]);
+
+  // Sync active session on browser back/forward navigation (popstate)
+  useEffect(() => {
+    const onPopState = () => {
+      const sessionId = getSessionIdFromUrl();
+      if (sessionId) {
+        const match = historyRef.current.find((item) => item.id === sessionId);
+        if (match) {
+          handleLoadHistory(match);
+          return;
+        }
+      }
+      // No session in URL: reset to a new chat
+      handleNewResearch();
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const hasActiveWorkspace = useMemo(() => {
     return isStreaming || report;
   }, [isStreaming, report]);
 
-  const saveSession = (session) => {
+const saveSession = (session) => {
     setHistory((prev) => [session, ...prev.filter((item) => item.id !== session.id)]);
     setActiveHistoryId(session.id);
+    localStorage.setItem(ACTIVE_SESSION_KEY, session.id);
+    setSessionIdInUrl(session.id);
   };
 
   const handleStartResearch = async (payload) => {
@@ -255,12 +308,14 @@ export default function App() {
     }
   };
 
-  const handleNewResearch = () => {
+const handleNewResearch = () => {
     setCurrentQuery('');
     setLogs([]);
     setScrapedSources([]);
     setReport('');
     setActiveHistoryId(null);
+    localStorage.removeItem(ACTIVE_SESSION_KEY);
+    setSessionIdInUrl(null);
   };
 
   const handleLoadHistory = (item) => {
@@ -269,13 +324,17 @@ export default function App() {
     setLogs(item.logs || []);
     setScrapedSources(item.scrapedSources || []);
     setReport(item.report || '');
+    localStorage.setItem(ACTIVE_SESSION_KEY, item.id);
+    setSessionIdInUrl(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteHistory = (id) => {
+const handleDeleteHistory = (id) => {
     setHistory((prev) => prev.filter((item) => item.id !== id));
     if (activeHistoryId === id) {
       setActiveHistoryId(null);
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
+      setSessionIdInUrl(null);
     }
   };
 

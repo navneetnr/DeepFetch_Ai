@@ -9,7 +9,10 @@ export default function ReportViewer({ report, query }) {
     return null;
   }
 
-  const parsedHtml = marked.parse(report);
+// Parse markdown and force all external links to open in a new tab
+  const parsedHtml = marked
+    .parse(report)
+    .replace(/<a\s+href=/g, '<a target="_blank" rel="noopener noreferrer" href=');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(report);

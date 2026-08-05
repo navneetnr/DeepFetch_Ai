@@ -14,11 +14,11 @@ Refactor the cluttered dashboard into a clean, modern Gemini-style minimalist UI
 8. Commit: `refactor(ui): simplified dashboard to clean Gemini style interface`.
 
 ## Status
-- [ ] App.jsx
+- [x] App.jsx
 - [x] Navbar.jsx
 - [x] Sidebar.jsx
 - [x] ResearchForm.jsx
 - [x] ReportViewer.jsx
 - [x] index.css
 - [x] Build & verify
-- [ ] Commit
+- [x] Commit
