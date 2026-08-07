@@ -1,24 +1,18 @@
-# Gemini-Style Minimalist UI Refactor
+# Backend Synthesis Pipeline Refactor
 
 ## Goal
-Refactor the cluttered dashboard into a clean, modern Gemini-style minimalist UI.
+Refactor the backend synthesis pipeline to strip raw scraped noise, produce true synthesized reports with a structured comparison table, and enforce strict topic relevance.
 
 ## Plan
-1. **App.jsx** — Centered greeting + Gemini floating input; seamless full-width markdown canvas when active; remove stats bar, toggle, MCP drawer, trace drawer.
-2. **Navbar.jsx** — Minimal: Logo, Theme toggle, User profile/Logout only.
-3. **Sidebar.jsx** — Clean collapsible with "+ New Chat" and single flat history list.
-4. **ResearchForm.jsx** — Gemini pill input (field + upload + send), remove search-mode selector & suggestions.
-5. **ReportViewer.jsx** — Clean full-width read canvas; remove "No Final Report" placeholder; keep minimal Copy/Download.
-6. **index.css** — Consistent `#0e1117` dark surface; clean markdown styles.
-7. Build & verify.
-8. Commit: `refactor(ui): simplified dashboard to clean Gemini style interface`.
+1. **scraper.py** — Strengthen content filtering: strip BibTeX blocks, expand ad/clutter class/id regex, add boilerplate removal.
+2. **synthesizer.py** — Improve deterministic fallback: true synthesis across sources, Executive Summary, Structured Comparison Table, inline citations.
+3. **planner.py** — Fix topic-relevant fallback sub-queries (remove generic appended suffixes).
+4. Test — Run a test search query through the research pipeline and verify report quality.
+5. Commit — Commit the fixes.
 
 ## Status
-- [x] App.jsx
-- [x] Navbar.jsx
-- [x] Sidebar.jsx
-- [x] ResearchForm.jsx
-- [x] ReportViewer.jsx
-- [x] index.css
-- [x] Build & verify
-- [x] Commit
+- [x] scraper.py
+- [x] synthesizer.py
+- [x] planner.py
+- [x] Test (unit checks for scraper, planner fallback, synthesizer comparison table passed; backend & frontend both up)
+- [ ] Commit

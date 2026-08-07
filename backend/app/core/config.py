@@ -1,6 +1,13 @@
 import os
 from typing import Optional
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Force loading the backend-local .env with override to prevent stale/expired OS environment
+# variables (e.g. an expired GROQ/OpenAI key set globally on the host) from taking precedence.
+# Path: <repo>/backend/app/core/config.py -> ../.. -> <repo>/backend/.env
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
+load_dotenv(dotenv_path=env_path, override=True)
 
 
 class Settings(BaseSettings):

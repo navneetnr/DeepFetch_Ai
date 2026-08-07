@@ -26,7 +26,7 @@ class PlannerNode:
     async def execute(self, state: ResearchState) -> Dict[str, Any]:
         user_query = state.get("user_query", "")
         logs = list(state.get("execution_logs", []))
-        
+
         log_msg = f"[Planner] Decomposing complex user query: '{user_query}'"
         logger.info(log_msg)
         logs.append(log_msg)
@@ -35,11 +35,19 @@ class PlannerNode:
 
         if self.api_key:
             try:
-                llm = ChatOpenAI(
-                    model=settings.OPENAI_MODEL,
-                    api_key=self.api_key,
-                    temperature=0.2,
-                )
+                if not settings.OPENAI_API_KEY and settings.GROQ_API_KEY:
+                    llm = ChatOpenAI(
+                        model=settings.GROQ_MODEL,
+                        api_key=settings.GROQ_API_KEY,
+                        base_url="https://api.groq.com/openai/v1",
+                        temperature=0.2,
+                    )
+                else:
+                    llm = ChatOpenAI(
+                        model=settings.OPENAI_MODEL,
+                        api_key=self.api_key,
+                        temperature=0.2,
+                    )
                 system_prompt = (
                     "You are an expert Autonomous Research Planner. Given a user's research query, "
                     "extract 2 to 3 concise, highly relevant keyword search terms targeting different angles. "
@@ -55,7 +63,7 @@ class PlannerNode:
                 ]
                 response = await llm.ainvoke(messages)
                 content = response.content.strip()
-                
+
                 # Parse JSON array from response
                 if "```json" in content:
                     content = content.split("```json")[1].split("```")[0].strip()
@@ -69,13 +77,8 @@ class PlannerNode:
                 logger.error(f"[Planner] LLM decomposition failed: {e}. Falling back to NLP decomposer.")
 
         if not sub_queries:
-            # Fallback deterministic sub-query strategy: produce concise, keyword-focused searches
-            base = user_query.strip()
-            sub_queries = self._sanitize_sub_queries([
-                f"{base} specs memory bandwidth",
-                f"{base} data center market share 2026",
-                f"{base} price per token",
-            ], user_query)
+            # Fallback deterministic sub-query strategy: produce topic-aware, keyword-focused searches.
+            sub_queries = self._fallback_sub_queries(user_query)
 
         log_result = f"[Planner] Generated {len(sub_queries)} sub-queries: {sub_queries}"
         logger.info(log_result)
@@ -86,6 +89,43 @@ class PlannerNode:
             "execution_logs": logs,
             "revision_count": state.get("revision_count", 0),
         }
+
+    def _fallback_sub_queries(self, user_query: str) -> List[str]:
+        """Generates topic-aware fallback sub-queries derived from the query itself.
+
+        Replaces the old generic GPU-style suffixes (e.g. 'specs memory bandwidth',
+        'data center market share 2026', 'price per token') which caused severe topic
+        drift for non-GPU queries like competitive programming language comparisons.
+        """
+        base = re.sub(r"\s+", " ", user_query).strip()
+        if not base:
+            return [user_query]
+
+        lowered = base.lower()
+
+        # Competitive programming query -> focus on CP-specific facets.
+        if any(kw in lowered for kw in ("competitive programming", "codeforces", "leetcode",
+                                        "time limit", "memory limit", "contest")):
+            return self._sanitize_sub_queries([
+                f"{base} time complexity memory usage fast input output",
+                f"{base} syntax speed compiler interpreter overhead data structures",
+                f"{base} built-in libraries boilerplate code",
+            ], user_query)
+
+        # Comparison / evaluation query -> keep the comparison focus.
+        if any(kw in lowered for kw in ("vs", "versus", "compare", "comparison", "better", "difference")):
+            return self._sanitize_sub_queries([
+                f"{base} performance benchmark comparison",
+                f"{base} key differences pros cons",
+                f"{base} strengths weaknesses use cases",
+            ], user_query)
+
+        # Default: derive generic but still topic-relevant search angles.
+        return self._sanitize_sub_queries([
+            f"{base} technical details specifications",
+            f"{base} analysis findings",
+            f"{base} documentation examples",
+        ], user_query)
 
     def _sanitize_sub_queries(self, queries: List[str], user_query: str) -> List[str]:
         """Keep generated searches terse and strip generic suffixes that dilute search relevance."""
@@ -104,3 +144,4 @@ class PlannerNode:
 
 
 planner_node = PlannerNode()
+
